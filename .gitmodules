@@ -1,0 +1,75 @@
+[submodule "src/ted"]
+	path = src/ted
+	url = http://source.mungo.io/tools/ted.git
+[submodule "src/resources"]
+	path = src/resources
+	url = http://source.mungo.io/mungo/resources.git
+[submodule "samples"]
+	path = samples
+	url = http://source.mungo.io/docs/samples.git
+[submodule "docs/monkeydoc"]
+	path = docs/monkeydoc
+	url = http://source.mungo.io/docs/impress.git
+[submodule "docs/templates/devolonter"]
+	path = docs/templates/devolonter
+	url = http://source.mungo.io/docs/template-devolonter.git
+[submodule "docs/templates/blitzmunter"]
+	path = docs/templates/blitzmunter
+	url = http://source.mungo.io/docs/template-blitzmunter.git
+[submodule "modules/mojo"]
+	path = modules/mojo
+	url = http://source.mungo.io/modules/mojo.git
+[submodule "modules/brl"]
+	path = modules/brl
+	url = http://source.mungo.io/modules/brl.git
+[submodule "modules/dom"]
+	path = modules/dom
+	url = http://source.mungo.io/modules/dom.git
+[submodule "modules/monkey"]
+	path = modules/monkey
+	url = http://source.mungo.io/modules/monkey.git
+[submodule "modules/opengl"]
+	path = modules/opengl
+	url = http://source.mungo.io/modules/opengl.git
+[submodule "modules/os"]
+	path = modules/os
+	url = http://source.mungo.io/modules/os.git
+[submodule "modules/reflection"]
+	path = modules/reflection
+	url = http://source.mungo.io/modules/reflection.git
+[submodule "modules/trans"]
+	path = modules/trans
+	url = http://source.mungo.io/modules/trans.git
+[submodule "targets/flash"]
+	path = targets/flash
+	url = http://source.mungo.io/targets/flash.git
+[submodule "targets/cpptool"]
+	path = targets/cpptool
+	url = http://source.mungo.io/targets/cpptool.git
+[submodule "targets/android"]
+	path = targets/android
+	url = http://source.mungo.io/targets/android.git
+[submodule "targets/glfw"]
+	path = targets/glfw
+	url = http://source.mungo.io/targets/glfw.git
+[submodule "targets/android_ouya"]
+	path = targets/android_ouya
+	url = http://source.mungo.io/targets/ouya.git
+[submodule "targets/ios"]
+	path = targets/ios
+	url = http://source.mungo.io/targets/ios.git
+[submodule "targets/psm"]
+	path = targets/psm
+	url = http://source.mungo.io/targets/psm.git
+[submodule "targets/winrt_win8"]
+	path = targets/winrt_win8
+	url = http://source.mungo.io/targets/win8.git
+[submodule "targets/winrt_winphone8"]
+	path = targets/winrt_winphone8
+	url = http://source.mungo.io/targets/winphone8.git
+[submodule "targets/xna"]
+	path = targets/xna
+	url = http://source.mungo.io/targets/xna.git
+[submodule "targets/html5"]
+	path = targets/html5
+	url = http://source.mungo.io/targets/html5.git

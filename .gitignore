@@ -1,0 +1,10 @@
+/bin/*
+!/bin/*.txt
+
+*.build*
+
+/Monkey
+/Monkey.app
+/Monkey.exe
+
+/docs/html
