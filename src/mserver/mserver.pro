@@ -18,8 +18,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     serverthread.cpp \
-    mungoserver.cpp
+    mungoserver.cpp \
+    singleapplication.cpp
 
 HEADERS += \
     serverthread.h \
-    mungoserver.h
+    mungoserver.h \
+    singleapplication.h
