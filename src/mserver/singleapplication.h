@@ -1,10 +1,11 @@
 #ifndef SINGLEAPPLICATION_H
 #define SINGLEAPPLICATION_H
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QSharedMemory>
+#include "httpserver.h"
 
-class SingleApplication : public QCoreApplication
+class SingleApplication : public QApplication
 {
     Q_OBJECT
 public:
@@ -13,8 +14,7 @@ public:
     bool isRunning();
     bool sendMessage(const QString &message);
 
-signals:
-    void messageAvailable(QString message);
+    void createHttpServer(QString filename);
 
 public slots:
     void checkForMessage();
@@ -22,6 +22,9 @@ public slots:
 private:
     bool _isRunning;
     QSharedMemory sharedMemory;
+
+    quint16 _port;
+    QSet<QString> _httpServers;
 
 };
 

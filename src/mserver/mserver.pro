@@ -6,22 +6,20 @@
 
 QT       += core
 QT       += network
+QT       += gui
 
-QT       -= gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = MServer
-CONFIG   += console
-CONFIG   -= app_bundle
-
 TEMPLATE = app
 
 
 SOURCES += main.cpp \
     serverthread.cpp \
-    mungoserver.cpp \
-    singleapplication.cpp
+    singleapplication.cpp \
+    httpserver.cpp
 
 HEADERS += \
     serverthread.h \
-    mungoserver.h \
-    singleapplication.h
+    singleapplication.h \
+    httpserver.h

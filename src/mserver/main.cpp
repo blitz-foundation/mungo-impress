@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <QTcpServer>
 #include "singleapplication.h"
-#include "mungoserver.h"
+#include "httpserver.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,12 +9,12 @@ int main(int argc, char *argv[])
 
     if (app.isRunning())
     {
-        app.sendMessage("TODO");
+        app.sendMessage(QString(argv[1]));
         return 0;
     }
 
-    MungoServer mserver;
-    mserver.start(8080);
+    qDebug() << "MungoServer v0.0.0";
+    app.createHttpServer(QString(argv[1]));
 
     return app.exec();
 }
