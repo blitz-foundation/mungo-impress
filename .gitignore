@@ -1,6 +1,10 @@
 /bin/*
 !/bin/*.txt
+/bin/*.develop.*.txt
 
+/.output/*
+
+/node_modules/*
 *.build*
 
 /Monkey

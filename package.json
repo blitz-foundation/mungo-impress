@@ -1,0 +1,9 @@
+{
+    "name": "mungo-impress",
+    "version": "1.0.0",
+    "devDependencies": {
+        "gulp": "",
+        "merge-stream": "",
+        "gulp-svg2png": ""
+    }
+}
