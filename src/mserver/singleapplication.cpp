@@ -2,9 +2,6 @@
 
 #include <QTimer>
 #include <QByteArray>
-#include <QFileInfo>
-#include <QDesktopServices>
-#include <QUrl>
 
 SingleApplication::SingleApplication(int &argc, char *argv[], const QString uniqueKey) : QApplication(argc, argv)
 {
@@ -30,8 +27,6 @@ SingleApplication::SingleApplication(int &argc, char *argv[], const QString uniq
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(checkForMessage()));
         timer->start(1000);
-
-        _port = 8079;
     }
 }
 
@@ -46,7 +41,7 @@ void SingleApplication::checkForMessage()
         return;
     byteArray.remove(0, 1);
 
-    createHttpServer(QString::fromUtf8(byteArray.constData()));
+    //TODO emit event
 
     // remove message from shared memory.
     byteArray = "0";
@@ -77,20 +72,4 @@ bool SingleApplication::sendMessage(const QString &message)
     memcpy(to, from, qMin(sharedMemory.size(), byteArray.size()));
     sharedMemory.unlock();
     return true;
-}
-
-void SingleApplication::createHttpServer(QString filename)
-{
-    QFileInfo f(filename);
-
-    if (!_httpServers.contains(f.absolutePath())) {
-        _port += 1;
-
-        HttpServer httpServer;
-        httpServer.start(_port);
-
-        _httpServers.insert(f.absolutePath());
-    }
-
-    //QDesktopServices::openUrl(QUrl(QString("http://localhost:%1/%2").arg(QString::number(_port), f.fileName())));
 }

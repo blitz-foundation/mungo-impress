@@ -2,6 +2,7 @@
 #include <QTcpServer>
 #include "singleapplication.h"
 #include "httpserver.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,7 +15,12 @@ int main(int argc, char *argv[])
     }
 
     qDebug() << "MungoServer v0.0.0";
-    app.createHttpServer(QString(argv[1]));
+
+    MainWindow w;
+
+    w.createHttpServer(QString(argv[1]));
+    w.setFixedSize(w.size());
+    w.show();
 
     return app.exec();
 }

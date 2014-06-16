@@ -17,9 +17,14 @@ TEMPLATE = app
 SOURCES += main.cpp \
     serverthread.cpp \
     singleapplication.cpp \
-    httpserver.cpp
+    httpserver.cpp \
+    mainwindow.cpp
 
 HEADERS += \
     serverthread.h \
     singleapplication.h \
-    httpserver.h
+    httpserver.h \
+    mainwindow.h
+
+FORMS += \
+    mainwindow.ui

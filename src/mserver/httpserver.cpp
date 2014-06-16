@@ -4,20 +4,12 @@
 HttpServer::HttpServer(QObject* parent)
     : QTcpServer(parent)
 {
-}
-
-void HttpServer::start(quint16 port)
-{
-    if (this->listen(QHostAddress::Any, port)) {
-        qDebug() << "HttpServer active and listening on port" << port;
-    } else {
-        qDebug() << "HttpServer: server failed to bind socket to port";
-    }
+    qDebug() << "try to create server";
 }
 
 void HttpServer::incomingConnection(qintptr socketDescriptor)
 {
-    qDebug() << "New connection";
+    qDebug() << "new client";
 
     ServerThread *thread = new ServerThread(socketDescriptor, this);
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
