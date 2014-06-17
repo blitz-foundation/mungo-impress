@@ -1,4 +1,5 @@
 #include "serverthread.h"
+#include "httpserver.h"
 
 ServerThread::ServerThread(qintptr clientId, QObject *parent) :
     QThread(parent)
@@ -24,19 +25,37 @@ void ServerThread::run()
 
 void ServerThread::readyRead()
 {
-    if (socket->canReadLine()) {
-        QStringList tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
+    QStringList tokens;
 
-        if (QString::compare("GET", tokens[0], Qt::CaseInsensitive) != 0) {
+    if (socket->canReadLine())
+    {
+        tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
+
+        if (QString::compare("GET", tokens[0], Qt::CaseInsensitive) != 0 || tokens.length() < 2)
+        {
             socket->close();
             return;
         }
     }
 
-    while (socket->canReadLine()) {
-        QStringList tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
+    QFileInfo fileInfo = QFileInfo(((HttpServer*)this->parent())->documentRoot + tokens[1]);
+    if (!fileInfo.exists())
+    {
+        socket->close();
+        return;
     }
 
+    while (socket->canReadLine())
+    {
+        tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
+    }
+
+    QFile file(fileInfo.absoluteFilePath());
+    file.open(QIODevice::ReadOnly);
+
+    socket->write(file.readAll());
+
+    file.close();
     socket->close();
 }
 

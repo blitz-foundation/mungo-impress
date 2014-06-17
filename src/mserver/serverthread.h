@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QTcpSocket>
+#include <QFileInfo>
 
 class ServerThread : public QThread
 {

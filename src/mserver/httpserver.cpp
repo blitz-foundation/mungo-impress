@@ -14,5 +14,3 @@ void HttpServer::incomingConnection(qintptr socketDescriptor)
 
     thread->start();
 }
-
-
