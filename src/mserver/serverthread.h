@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QTcpSocket>
 #include <QFileInfo>
+#include <QMimeType>
+#include <QMimeDatabase>
 
 class ServerThread : public QThread
 {
@@ -13,7 +15,7 @@ public:
 
     void run();
 
-    void writeDataType(QString filename, QTcpSocket *socket);
+    void abort(quint16 code, const QString &message);
 
 signals:
     void error(QTcpSocket::SocketError socketerror);

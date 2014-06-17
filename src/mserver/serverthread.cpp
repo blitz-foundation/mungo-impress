@@ -33,7 +33,7 @@ void ServerThread::readyRead()
 
         if (QString::compare("GET", tokens[0], Qt::CaseInsensitive) != 0 || tokens.length() < 2)
         {
-            socket->close();
+            abort(400, "400 Bad Request");
             return;
         }
     }
@@ -41,7 +41,7 @@ void ServerThread::readyRead()
     QFileInfo fileInfo = QFileInfo(((HttpServer*)this->parent())->documentRoot + tokens[1]);
     if (!fileInfo.exists())
     {
-        socket->close();
+        abort(404, "404 Not Found");
         return;
     }
 
@@ -53,9 +53,56 @@ void ServerThread::readyRead()
     QFile file(fileInfo.absoluteFilePath());
     file.open(QIODevice::ReadOnly);
 
+    QMimeDatabase db;
+    QString mimeType = db.mimeTypeForFile(fileInfo.absoluteFilePath()).name();
+
+    if (mimeType == "text/html") {
+        mimeType += "; charset=\"utf-8\"";
+    }
+
+    QTextStream headers(socket);
+    headers.setAutoDetectUnicode(true);
+
+    headers << "HTTP/1.1 200 OK\r\n"
+        "Content-Type:" << mimeType << "\r\n"
+        "Content-Length:" << QString::number(file.size()) << "\r\n"
+        "\r\n";
+
+    headers.flush();
     socket->write(file.readAll());
 
     file.close();
+    socket->close();
+}
+
+void ServerThread::abort(quint16 code, const QString &message)
+{
+    QTextStream os(socket);
+    os.setAutoDetectUnicode(true);
+
+    QString status;
+
+    switch (code) {
+    case 404:
+        status = "Not Found";
+        break;
+    case 400:
+        status = "Bad Request";
+        break;
+    default:
+        status = "OK";
+        break;
+    }
+
+    QString body = "<h1>" + message + "</h1>";
+
+    os << "HTTP/1.1" << QString::number(code) <<  status << "\r\n"
+      "Content-Type: text/html; charset=\"utf-8\"\r\n"
+      "Content-Length:" << QString::number(body.length()) << "\r\n"
+      "\r\n";
+
+    os << body;
+
     socket->close();
 }
 
