@@ -18,6 +18,8 @@ int main(int argc, char *argv[])
 
     MainWindow w;
 
+    QObject::connect(&app, SIGNAL(messageAvailable(QString)), &w, SLOT(receiveMessage(QString)));
+
     w.createHttpServer(QString(argv[1]));
     w.setFixedSize(w.size());
     w.show();

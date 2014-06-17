@@ -22,6 +22,9 @@ public:
 
     void createHttpServer(QString filename);
 
+public slots:
+    void receiveMessage(QString filename);
+
 private:
     Ui::MainWindow *ui;
 
