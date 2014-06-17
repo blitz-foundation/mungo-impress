@@ -6,10 +6,13 @@
 class HttpServer : public QTcpServer
 {
 public:
-    HttpServer(QObject* parent = 0);
+    HttpServer(const QString &documentRoot, QObject* parent = 0);
 
 protected:
     void incomingConnection(qintptr socketDescriptor);
+
+private:
+    QString documentRoot;
 };
 
 #endif // MUNGOSERVER_H
