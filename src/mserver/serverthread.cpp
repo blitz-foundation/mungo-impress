@@ -50,23 +50,45 @@ void ServerThread::readyRead()
         return;
     }
 
+    QString if_none_match;
+
     while (socket->canReadLine())
     {
         tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
+
+        if (QString::compare("if-none-match:", tokens[0], Qt::CaseInsensitive) == 0)
+        {
+            if_none_match = tokens[1].trimmed();
+        }
     }
 
-    QFile file(fileInfo.absoluteFilePath());
-    file.open(QIODevice::ReadOnly);
+    QString etag = QString("\"%1\"").arg(QString::number(fileInfo.lastModified().toTime_t()));
 
     QTextStream headers(socket);
     headers.setAutoDetectUnicode(true);
 
-    headers << "HTTP/1.1 200 OK\r\n"
-        "Content-Type:" << server->getMimeType(fileInfo.absoluteFilePath()) << "\r\n"
-        "Content-Length:" << QString::number(file.size()) << "\r\n"
-        "\r\n";
+    if (etag == if_none_match)
+    {
+       headers << "HTTP/1.1 304 Not Modified\r\n\r\n";
+
+       headers.flush();
+       socket->disconnectFromHost();
+       return;
+    }
+    else
+    {
+       headers << "HTTP/1.1 200 OK\r\n"
+                  "Content-Type:" << server->getMimeType(fileInfo.absoluteFilePath()) << "\r\n"
+                  "Content-Length:" << QString::number(fileInfo.size()) << "\r\n";
+    }
+
+    headers << "ETag:" << etag << "\r\n\r\n";
 
     headers.flush();
+
+    QFile file(fileInfo.absoluteFilePath());
+    file.open(QIODevice::ReadOnly);
+
     socket->write(file.readAll());
 
     file.close();

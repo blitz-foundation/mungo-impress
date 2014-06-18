@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QTcpSocket>
 #include <QFileInfo>
+#include <QDateTime>
 
 #include "httpserver.h"
 
