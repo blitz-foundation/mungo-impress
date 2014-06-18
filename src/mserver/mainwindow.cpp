@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->console->appendPlainText("MungoServer v0.0.0");
+    ui->console->appendPlainText("MungoServer v"MUNGOSERVER_VERSION);
 }
 
 MainWindow::~MainWindow()
@@ -31,7 +31,7 @@ void MainWindow::createHttpServer(QString filename)
 
         if (httpServer->isListening())
         {
-            ui->console->appendPlainText("HttpServer active and listening on port " + QString::number(port));
+            ui->console->appendPlainText("HTTP server active and listening on port " + QString::number(port));
             httpServers.insert(f.absolutePath(), httpServer);
         }
         else
@@ -42,7 +42,7 @@ void MainWindow::createHttpServer(QString filename)
     }
     else
     {
-        ui->console->appendPlainText("HttpServer active and listening on port " + QString::number(port));
+        ui->console->appendPlainText("HTTP server active and listening on port " + QString::number(port));
     }
 
     QDesktopServices::openUrl(QUrl(QString("http://localhost:%1/%2").arg(QString::number(port), f.fileName())));
