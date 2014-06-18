@@ -1,0 +1,24 @@
+{
+  "path": {
+    "transcc": "",
+    "qt": "",
+    "mingw": ""
+  },
+  "environment": {
+    "release": {
+      "transcc": {
+        "args": ["-config=release", "-target=C++_Tool", "-builddir=.build"],
+        "config": "develop"
+      },
+      "qmake": {
+        "args": ["-r", "-spec", "win32-g++"]
+      },
+      "dependencies": [
+        "Qt5Sensors.dll", "Qt5Sql.dll", "Qt5Core.dll", "Qt5WebKit.dll", "Qt5Gui.dll", "Qt5WebKitWidgets.dll",
+        "Qt5Multimedia.dll", "Qt5Widgets.dll", "Qt5MultimediaWidgets.dll", "Qt5Network.dll", "icudt52.dll", "platforms",
+        "Qt5OpenGL.dll", "icuin52.dll", "Qt5Positioning.dll", "icuuc52.dll", "Qt5PrintSupport.dll", "libstdc++-6.dll",
+        "Qt5Qml.dll", "Qt5Quick.dll"
+      ]
+    }
+  }
+}

@@ -30,10 +30,12 @@ if (config.path.transcc === '') {
 
 var transcc = config.path.transcc + '/transcc_' + host;
 var qmake = config.path.qt + '/qmake';
+var make = config.path.mingw + '/mingw32-make';
 
 if (process.platform == 'win32') {
   transcc += '.exe';
   qmake += '.exe';
+  make += '.exe';
 }
 
 gulp.task('transcc', function(callback) {
@@ -64,6 +66,42 @@ gulp.task('transcc', function(callback) {
     }
   );
 });
+
+gulp.task('mserver', function(callback) {
+  var src = './src/mserver';
+  var buildDir = path.resolve(src, '.build');
+
+  if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir);
+  }
+
+  return exec(
+    qmake,
+    environment.qmake.args.concat(path.resolve(src, 'mserver.pro')),
+    {
+      cwd: buildDir
+    },
+
+    function(err, stdout, stderr) {
+      console.log(stdout);
+      console.log(stderr);
+
+      if (!err) {
+        exec(make, {cwd: buildDir},
+          function(err, stdout, stderr) {
+            console.log(stdout);
+            console.log(stderr);
+
+            callback(err);
+          }
+        )
+      } else {
+        callback(err);
+      }
+    }
+  );
+});
+
 
 /*gulp.task('svg2png', function () {
  gulp.src('./src/resources/logo/*.svg')
