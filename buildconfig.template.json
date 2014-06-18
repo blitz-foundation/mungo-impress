@@ -1,0 +1,14 @@
+{
+  "path": {
+    "transcc": "",
+    "qt": ""
+  },
+  "environment": {
+    "release": {
+      "transcc": {
+        "args": ["-config=release", "-target=C++_Tool", "-builddir=.build"],
+        "config": "develop"
+      }
+    }
+  }
+}
