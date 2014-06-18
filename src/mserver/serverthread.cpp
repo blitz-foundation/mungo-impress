@@ -53,6 +53,9 @@ void ServerThread::readyRead()
     QString if_none_match;
     bool keep_alive = false;
 
+    quint64 range_start = 0;
+    quint64 range_end = 0;
+
     while (socket->canReadLine())
     {
         tokens = QString(socket->readLine()).split(QRegExp("[ \r\n][ \r\n]*"));
@@ -64,6 +67,14 @@ void ServerThread::readyRead()
         else if (QString::compare("connection:", tokens[0], Qt::CaseInsensitive) == 0)
         {
             keep_alive = (QString::compare("keep-alive", tokens[1].trimmed(), Qt::CaseInsensitive) == 0);
+        }
+        else if (QString::compare("range:", tokens[0], Qt::CaseInsensitive) == 0)
+        {
+            QString range = tokens[1].trimmed().mid(6);
+            QStringList rangeList = range.split("-");
+
+            range_start = rangeList[0].toUInt();
+            range_end = rangeList[1].toUInt();
         }
     }
 
@@ -83,21 +94,35 @@ void ServerThread::readyRead()
 
         return;
     }
+    else if (range_end > 0)
+    {
+        headers << "HTTP/1.1 206 Partial Content\r\n"
+                   "Content-Type:" << server->getMimeType(fileInfo.absoluteFilePath()) << "\r\n"
+                   "Content-Length:" << QString::number(range_end - range_start) << "\r\n"
+                   "Content-Range: bytes" << (QString::number(range_start) + "-" + QString::number(range_end) + "/" + QString::number(fileInfo.size())) << "\r\n";
+    }
     else
     {
-       headers << "HTTP/1.1 200 OK\r\n"
-                  "Content-Type:" << server->getMimeType(fileInfo.absoluteFilePath()) << "\r\n"
-                  "Content-Length:" << QString::number(fileInfo.size()) << "\r\n";
+        headers << "HTTP/1.1 200 OK\r\n"
+                   "Content-Type:" << server->getMimeType(fileInfo.absoluteFilePath()) << "\r\n"
+                   "Content-Length:" << QString::number(fileInfo.size()) << "\r\n";
     }
 
     headers << "ETag:" << etag << "\r\n\r\n";
-
     headers.flush();
 
     QFile file(fileInfo.absoluteFilePath());
     file.open(QIODevice::ReadOnly);
 
-    socket->write(file.readAll());
+    if (range_end == 0)
+    {
+        socket->write(file.readAll());
+    }
+    else
+    {
+        file.seek(range_start);
+        socket->write(file.read(range_end - range_start));
+    }
 
     file.close();
 
