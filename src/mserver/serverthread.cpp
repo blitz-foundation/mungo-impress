@@ -51,6 +51,7 @@ void ServerThread::readyRead()
     }
 
     QString if_none_match;
+    bool keep_alive = false;
 
     while (socket->canReadLine())
     {
@@ -59,6 +60,10 @@ void ServerThread::readyRead()
         if (QString::compare("if-none-match:", tokens[0], Qt::CaseInsensitive) == 0)
         {
             if_none_match = tokens[1].trimmed();
+        }
+        else if (QString::compare("connection:", tokens[0], Qt::CaseInsensitive) == 0)
+        {
+            keep_alive = (QString::compare("keep-alive", tokens[1].trimmed(), Qt::CaseInsensitive) == 0);
         }
     }
 
@@ -69,11 +74,14 @@ void ServerThread::readyRead()
 
     if (etag == if_none_match)
     {
-       headers << "HTTP/1.1 304 Not Modified\r\n\r\n";
+        headers << "HTTP/1.1 304 Not Modified\r\n\r\n";
 
-       headers.flush();
-       socket->disconnectFromHost();
-       return;
+        headers.flush();
+
+        if (!keep_alive)
+           socket->disconnectFromHost();
+
+        return;
     }
     else
     {
@@ -92,7 +100,9 @@ void ServerThread::readyRead()
     socket->write(file.readAll());
 
     file.close();
-    socket->disconnectFromHost();
+
+    if (!keep_alive)
+       socket->disconnectFromHost();
 }
 
 void ServerThread::abort(quint16 code, const QString &message)
