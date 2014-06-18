@@ -4,8 +4,8 @@
 #include <QThread>
 #include <QTcpSocket>
 #include <QFileInfo>
-#include <QMimeType>
-#include <QMimeDatabase>
+
+#include "httpserver.h"
 
 class ServerThread : public QThread
 {

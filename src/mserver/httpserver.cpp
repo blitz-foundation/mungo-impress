@@ -1,10 +1,8 @@
 #include "httpserver.h"
-#include "serverthread.h"
 
 HttpServer::HttpServer(const QString &documentRoot, QObject* parent)
-    : QTcpServer(parent)
+    : QTcpServer(parent), documentRoot(documentRoot)
 {
-    this->documentRoot = documentRoot;
 }
 
 void HttpServer::incomingConnection(qintptr socketDescriptor)
@@ -13,4 +11,14 @@ void HttpServer::incomingConnection(qintptr socketDescriptor)
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 
     thread->start();
+}
+
+const QString HttpServer::getMimeType(const QString &filename)
+{
+    QString mimeType = mimeTypes.mimeTypeForFile(filename).name();
+
+    if (mimeType == "text/html")
+        mimeType += "; charset=\"utf-8\"";
+
+    return mimeType;
 }

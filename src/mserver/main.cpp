@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <QTcpServer>
+
 #include "singleapplication.h"
-#include "httpserver.h"
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
@@ -18,7 +18,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(&app, SIGNAL(messageAvailable(QString)), &w, SLOT(receiveMessage(QString)));
 
-    w.createHttpServer(QString(argv[1]));
+    if (argc > 1)
+        w.createHttpServer(QString(argv[1]));
+
     w.show();
 
     return app.exec();

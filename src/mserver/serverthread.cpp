@@ -1,10 +1,8 @@
 #include "serverthread.h"
-#include "httpserver.h"
 
 ServerThread::ServerThread(qintptr clientId, QObject *parent) :
-    QThread(parent)
+    QThread(parent), clientId(clientId)
 {
-    this->clientId = clientId;
 }
 
 void ServerThread::run()
@@ -18,7 +16,7 @@ void ServerThread::run()
     }
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()), Qt::DirectConnection);
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()), Qt::DirectConnection);
 
     exec();
 }
@@ -37,8 +35,15 @@ void ServerThread::readyRead()
             return;
         }
     }
+    else
+    {
+        abort(400, "400 Bad Request");
+        return;
+    }
 
-    QFileInfo fileInfo = QFileInfo(((HttpServer*)this->parent())->documentRoot + tokens[1]);
+    HttpServer *server = (HttpServer*)this->parent();
+    QFileInfo fileInfo = QFileInfo(server->documentRoot + tokens[1]);
+
     if (!fileInfo.exists())
     {
         abort(404, "404 Not Found");
@@ -53,18 +58,11 @@ void ServerThread::readyRead()
     QFile file(fileInfo.absoluteFilePath());
     file.open(QIODevice::ReadOnly);
 
-    QMimeDatabase db;
-    QString mimeType = db.mimeTypeForFile(fileInfo.absoluteFilePath()).name();
-
-    if (mimeType == "text/html") {
-        mimeType += "; charset=\"utf-8\"";
-    }
-
     QTextStream headers(socket);
     headers.setAutoDetectUnicode(true);
 
     headers << "HTTP/1.1 200 OK\r\n"
-        "Content-Type:" << mimeType << "\r\n"
+        "Content-Type:" << server->getMimeType(fileInfo.absoluteFilePath()) << "\r\n"
         "Content-Length:" << QString::number(file.size()) << "\r\n"
         "\r\n";
 
@@ -72,7 +70,7 @@ void ServerThread::readyRead()
     socket->write(file.readAll());
 
     file.close();
-    socket->close();
+    socket->disconnectFromHost();
 }
 
 void ServerThread::abort(quint16 code, const QString &message)
@@ -82,7 +80,8 @@ void ServerThread::abort(quint16 code, const QString &message)
 
     QString status;
 
-    switch (code) {
+    switch (code)
+    {
     case 404:
         status = "Not Found";
         break;
@@ -97,17 +96,18 @@ void ServerThread::abort(quint16 code, const QString &message)
     QString body = "<h1>" + message + "</h1>";
 
     os << "HTTP/1.1" << QString::number(code) <<  status << "\r\n"
-      "Content-Type: text/html; charset=\"utf-8\"\r\n"
-      "Content-Length:" << QString::number(body.length()) << "\r\n"
-      "\r\n";
+        "Content-Type: text/html; charset=\"utf-8\"\r\n"
+        "Content-Length:" << QString::number(body.length()) << "\r\n"
+        "\r\n";
 
     os << body;
 
-    socket->close();
+    os.flush();
+    socket->disconnectFromHost();
 }
 
 void ServerThread::disconnected()
 {
-    socket->deleteLater();
-    exit(0);
+    socket->close();
+    quit();
 }

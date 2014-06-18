@@ -6,6 +6,8 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QHash>
+
+#include "ui_mainwindow.h"
 #include "httpserver.h"
 
 namespace Ui {

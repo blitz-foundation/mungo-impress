@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QSharedMemory>
 #include <QLocalServer>
+#include <QLocalSocket>
 
 class SingleApplication : public QApplication
 {

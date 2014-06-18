@@ -1,7 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "httpserver.h"
-#include "singleapplication.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,26 +17,28 @@ void MainWindow::createHttpServer(QString filename)
 {
     QFileInfo f(filename);
 
-    if (!httpServers.contains(f.absolutePath())) {
-        if (httpServers.empty()) {
-            port = 8080;
-        } else {
-            port += 1;
-        }
+    if (!httpServers.contains(f.absolutePath()))
+    {
+        port = httpServers.empty() ? 8080 : port + 1;
 
         HttpServer *httpServer = new HttpServer(f.absolutePath(), this);
 
-        while(!httpServer->listen(QHostAddress::LocalHost, port) && port < 8180) {
-            port += 1;
-        }
+        while(!httpServer->listen(QHostAddress::LocalHost, port) && port < 8180)
+            port++;
 
-        if (httpServer->isListening()) {
+        if (httpServer->isListening())
+        {
             ui->console->appendPlainText("HttpServer active and listening on port " + QString::number(port));
             httpServers.insert(f.absolutePath(), httpServer);
-        } else {
+        }
+        else
+        {
             ui->console->appendPlainText("HttpServer server failed to bind socket to port " + QString::number(port));
         }
-    } else {
+
+    }
+    else
+    {
         ui->console->appendPlainText("HttpServer active and listening on port " + QString::number(port));
     }
 
@@ -48,5 +47,6 @@ void MainWindow::createHttpServer(QString filename)
 
 void MainWindow::receiveMessage(QString filename)
 {
-    this->createHttpServer(filename);
+    if (filename.length())
+        this->createHttpServer(filename);
 }
