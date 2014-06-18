@@ -17,6 +17,9 @@ void MainWindow::createHttpServer(QString filename)
 {
     QFileInfo f(filename);
 
+    if (!f.exists())
+        return;
+
     if (!httpServers.contains(f.absolutePath()))
     {
         port = httpServers.empty() ? 8080 : port + 1;
