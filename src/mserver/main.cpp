@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
         w.createHttpServer(QString(argv[1]));
 
-    w.show();
+    w.showMinimized();
 
     return app.exec();
 }
