@@ -114,8 +114,10 @@ var buildMonkeyProject = function(projectName, projectDestName, target) {
     projectDestName = projectName;
   }
 
+  var transArgs = environment.transcc.args;
+
   if (target) {
-    environment.transcc.args.push('-target=' + target);
+    transArgs = environment.transcc.args.concat(['-target=' + target]);
   }
 
   return function(callback) {
@@ -125,7 +127,7 @@ var buildMonkeyProject = function(projectName, projectDestName, target) {
 
     return exec(
       transcc,
-      environment.transcc.args.concat(["-builddir=.build", path.resolve(src, projectName + '.monkey')]),
+      transArgs.concat(["-builddir=.build", path.resolve(src, projectName + '.monkey')]),
 
       function(err, stdout, stderr) {
         console.log(stdout);
