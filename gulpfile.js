@@ -103,42 +103,45 @@ var buildQtProject = function(projectName, projectDestName) {
   }
 };
 
-gulp.task('transcc', function(callback) {
-  var src = './src/transcc';
+var buildMonkeyProject = function(projectName, projectDestName) {
+  var src = './src/' + projectName;
   var buildDir = path.resolve(src, '.build');
 
-  if (fs.existsSync(buildDir)) {
-    wrench.rmdirSyncRecursive(buildDir);
+  if (!projectDestName) {
+    projectDestName = projectName;
   }
 
-  return exec(
-    transcc,
-    environment.transcc.args.concat(["-builddir=.build", path.resolve(src, 'transcc.monkey')]),
-
-    function(err, stdout, stderr) {
-      console.log(stdout);
-      console.log(stderr);
-
-      var origin = 'main_' + host;
-      var dest = 'transcc_' + host;
-
-      if (process.platform == 'win32') {
-        origin += '.exe';
-        dest += '.exe';
-      }
-
-      fs.renameSync(
-        path.resolve(src, '.build/cpptool', origin),
-        path.resolve(bin, dest)
-      );
-
-      callback(err);
+  return function(callback) {
+    if (fs.existsSync(buildDir)) {
+      wrench.rmdirSyncRecursive(buildDir);
     }
-  );
-});
 
-gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
-gulp.task('jentos', buildQtProject('jentos'));
+    return exec(
+      transcc,
+      environment.transcc.args.concat(["-builddir=.build", path.resolve(src, projectName + '.monkey')]),
+
+      function(err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+
+        var origin = 'main_' + host;
+        var dest = projectDestName;
+
+        if (process.platform == 'win32') {
+          origin += '.exe';
+          dest += '.exe';
+        }
+
+        fs.renameSync(
+          path.resolve(src, '.build/cpptool', origin),
+          path.resolve(bin, dest)
+        );
+
+        callback(err);
+      }
+    );
+  }
+};
 
 gulp.task('dependencies', function(callback) {
   environment.qt.dependencies.forEach(function(item) {
@@ -163,7 +166,12 @@ gulp.task('dependencies', function(callback) {
   });
 });
 
-gulp.task('default', ['mserver', 'dependencies', 'transcc']);
+gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
+gulp.task('makedocs', buildMonkeyProject('makedocs', 'makedocs_' + host));
+gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
+gulp.task('jentos', buildQtProject('jentos'));
+
+gulp.task('default', ['dependencies', 'mserver', 'jentos', 'transcc', 'makedocs']);
 
 
 /*gulp.task('svg2png', function () {
