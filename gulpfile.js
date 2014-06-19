@@ -33,11 +33,13 @@ var transcc = config.path.transcc + '/transcc_' + host;
 var qmake = config.path.qt + '/qmake';
 var make = config.path.mingw + '/mingw32-make';
 var bin = './bin';
+var makedocs = bin + '/makedocs_' + host;
 
 if (process.platform == 'win32') {
   transcc += '.exe';
   qmake += '.exe';
   make += '.exe';
+  makedocs += '.exe';
 }
 
 var buildQtProject = function(projectName, projectDestName) {
@@ -166,12 +168,23 @@ gulp.task('dependencies', function(callback) {
   });
 });
 
+gulp.task('docs', ['transcc', 'makedocs'],
+  function(callback) {
+    return exec(makedocs, function(err, stdout, stderr) {
+      console.log(stdout);
+      console.log(stderr);
+
+      callback(err);
+    });
+  }
+);
+
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
-gulp.task('makedocs', buildMonkeyProject('makedocs', 'makedocs_' + host));
+gulp.task('makedocs', ['transcc'], buildMonkeyProject('makedocs', 'makedocs_' + host));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 
-gulp.task('default', ['dependencies', 'mserver', 'jentos', 'transcc', 'makedocs']);
+gulp.task('default', ['dependencies', 'mserver', 'jentos', 'transcc', 'docs']);
 
 
 /*gulp.task('svg2png', function () {
