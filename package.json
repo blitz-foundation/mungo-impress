@@ -4,6 +4,7 @@
     "devDependencies": {
         "gulp": "",
         "merge-stream": "",
+        "wrench": "",
         "gulp-svg2png": ""
     }
 }
