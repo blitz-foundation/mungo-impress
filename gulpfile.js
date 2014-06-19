@@ -40,6 +40,69 @@ if (process.platform == 'win32') {
   make += '.exe';
 }
 
+var buildQtProject = function(projectName, projectDestName) {
+  var src = './src/' + projectName;
+  var buildDir = path.resolve(src, '.build');
+
+  if (!projectDestName) {
+    projectDestName = projectName;
+  }
+
+  return function(callback) {
+    if (!fs.existsSync(buildDir)) {
+      fs.mkdirSync(buildDir);
+    } else {
+      wrench.rmdirSyncRecursive(buildDir);
+      fs.mkdirSync(buildDir);
+    }
+
+    exec(
+      qmake,
+      environment.qmake.args.concat(path.resolve(src, projectName + '.pro')),
+      {
+        cwd: buildDir
+      },
+
+      function(err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+
+        if (!err) {
+          exec(make, {cwd: buildDir},
+            function(err, stdout, stderr) {
+              console.log(stdout);
+              console.log(stderr);
+
+              var origin = projectName;
+              var dest = projectDestName;
+
+              if (process.platform == 'win32') {
+                origin += '.exe';
+                dest += '.exe';
+              }
+
+              var tmp = path.resolve(buildDir, 'release', origin);
+
+              if (!fs.existsSync(tmp)) {
+                tmp = path.resolve(buildDir, 'debug', origin);
+              }
+
+              fs.renameSync(
+                tmp,
+                path.resolve(bin, dest)
+              );
+
+              callback(err);
+            }
+          )
+        } else {
+          callback(err);
+        }
+      }
+    );
+  }
+};
+
 gulp.task('transcc', function(callback) {
   var src = './src/transcc';
   var buildDir = path.resolve(src, '.build');
@@ -74,62 +137,7 @@ gulp.task('transcc', function(callback) {
   );
 });
 
-gulp.task('mserver', function(callback) {
-  var src = './src/mserver';
-  var buildDir = path.resolve(src, '.build');
-
-  if (!fs.existsSync(buildDir)) {
-    fs.mkdirSync(buildDir);
-  } else {
-    wrench.rmdirSyncRecursive(buildDir);
-    fs.mkdirSync(buildDir);
-  }
-
-  exec(
-    qmake,
-    environment.qmake.args.concat(path.resolve(src, 'mserver.pro')),
-    {
-      cwd: buildDir
-    },
-
-    function(err, stdout, stderr) {
-      console.log(stdout);
-      console.log(stderr);
-
-      if (!err) {
-        exec(make, {cwd: buildDir},
-          function(err, stdout, stderr) {
-            console.log(stdout);
-            console.log(stderr);
-
-            var origin = 'mserver';
-            var dest = 'mserver_' + host;
-
-            if (process.platform == 'win32') {
-              origin += '.exe';
-              dest += '.exe';
-            }
-
-            var tmp = path.resolve(buildDir, 'release', origin);
-
-            if (!fs.existsSync(tmp)) {
-              tmp = path.resolve(buildDir, 'debug', origin);
-            }
-
-            fs.renameSync(
-              tmp,
-              path.resolve(bin, dest)
-            );
-
-            callback(err);
-          }
-        )
-      } else {
-        callback(err);
-      }
-    }
-  );
-});
+gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 
 gulp.task('dependencies', function(callback) {
   environment.qt.dependencies.forEach(function(item) {
@@ -138,10 +146,16 @@ gulp.task('dependencies', function(callback) {
         fs.createReadStream(path.resolve(config.path.qt, dep)).pipe(fs.createWriteStream(path.resolve(bin, dep)));
       });
     } else {
+      var dest = path.resolve(bin, path.basename(item));
+
+      if (fs.existsSync(dest)) {
+        wrench.rmdirSyncRecursive(dest);
+      }
+
       wrench.copyDirRecursive(
         path.resolve(config.path.qt, item),
-        path.resolve(bin, path.basename(item)),
-        {forceDelete: true},
+        dest,
+        {forceDelete: false},
         callback
       );
     }
