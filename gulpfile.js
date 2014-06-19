@@ -216,7 +216,11 @@ gulp.task('mungo', environment.options.build === 'clean' ? ['transcc'] : [], bui
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 
-gulp.task('default', ['dependencies', 'mserver', 'jentos', 'transcc', 'docs']);
+if (environment.options.build === 'clean') {
+  gulp.task('default', ['dependencies', 'mserver', 'jentos', 'transcc', 'docs', 'mungo']);
+} else {
+  gulp.task('default', ['dependencies', 'mserver', 'jentos', 'docs', 'mungo']);
+}
 
 
 /*gulp.task('svg2png', function () {

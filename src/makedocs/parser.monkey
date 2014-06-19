@@ -108,12 +108,6 @@ Class Parser
 	Method GetToker:Toker()
 		Return _toker
 	End
-	
-	Private
-	
-	Field _toker:Toker
-	Field _toke:String
-	Field _tokeType:Int
 		
 	Method Err:Void( msg:String="Parse error" )
 	
@@ -304,5 +298,11 @@ Class Parser
 		Wend
 		Return ty
 	End
+	
+	Private
+	
+	Field _toker:Toker
+	Field _toke:String
+	Field _tokeType:Int
 	
 End
