@@ -181,6 +181,7 @@ gulp.task('docs', ['transcc', 'makedocs'],
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
 gulp.task('makedocs', ['transcc'], buildMonkeyProject('makedocs', 'makedocs_' + host));
+gulp.task('mungo', buildMonkeyProject('mungo', '../mungo'));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 
