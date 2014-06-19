@@ -106,12 +106,16 @@ var buildQtProject = function(projectName, projectDestName) {
   }
 };
 
-var buildMonkeyProject = function(projectName, projectDestName) {
+var buildMonkeyProject = function(projectName, projectDestName, target) {
   var src = './src/' + projectName;
   var buildDir = path.resolve(src, '.build');
 
   if (!projectDestName) {
     projectDestName = projectName;
+  }
+
+  if (target) {
+    environment.transcc.args.push('-target=' + target);
   }
 
   return function(callback) {
@@ -135,8 +139,32 @@ var buildMonkeyProject = function(projectName, projectDestName) {
           dest += '.exe';
         }
 
+        var tmp = path.resolve(src, '.build/cpptool', origin);
+
+        if (!fs.existsSync(tmp)) {
+          tmp = path.resolve(src, '.build/glfw');
+
+          if (fs.existsSync(tmp)) {
+            origin = 'MonkeyGame' + path.extname(origin);
+
+            if (process.platform == 'win32') {
+              tmp = path.resolve(tmp, 'gcc_winnt');
+            } else if (process.platform == 'linux') {
+              tmp = path.resolve(tmp, 'gcc_linux');
+            } else {
+              tmp = path.resolve(tmp, 'xcode');
+            }
+
+            tmp = path.resolve(tmp, 'Release', origin);
+
+            if (!fs.existsSync(tmp)) {
+              tmp = path.resolve(buildDir, 'Debug', origin);
+            }
+          }
+        }
+
         fs.renameSync(
-          path.resolve(src, '.build/cpptool', origin),
+          tmp,
           path.resolve(bin, dest)
         );
 
@@ -182,7 +210,7 @@ gulp.task('docs', CONFIG === 'clean' ? ['transcc', 'makedocs'] : [],
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
 gulp.task('makedocs', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
-gulp.task('mungo', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo'));
+gulp.task('mungo', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo', 'Desktop_Game'));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 
