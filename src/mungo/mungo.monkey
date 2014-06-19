@@ -1,19 +1,12 @@
 Strict
 
-Import "shell.cpp"
-Import os
-
-Extern
-
-Function Exec:Void(url:String)
-	
-Public
+Import mojo.app
 
 Function Main:Int()
 	#If HOST = "winnt"
-		Exec("bin\jentos.exe")
+		OpenUrl("bin\jentos.exe")
 	#Else
-		Exec("bin\jentos")
+		OpenUrl("bin\jentos")
 	#End
 	
 	Return 0
