@@ -1,5 +1,4 @@
 var ENVIRONMENT = 'release';
-var CONFIG = 'clean'; //or fast
 
 var gulp = require('gulp');
 var fs = require('fs');
@@ -11,6 +10,7 @@ var svg2png = require('gulp-svg2png');
 
 var config = require('./buildconfig');
 var environment = config.environment[ENVIRONMENT];
+var options = environment.options;
 
 var host = '';
 
@@ -197,7 +197,7 @@ gulp.task('dependencies', function(callback) {
   });
 });
 
-gulp.task('docs', CONFIG === 'clean' ? ['transcc', 'makedocs'] : [],
+gulp.task('docs', environment.options.build === 'clean' ? ['transcc', 'makedocs'] : [],
   function(callback) {
     return exec(makedocs, function(err, stdout, stderr) {
       console.log(stdout);
@@ -209,8 +209,8 @@ gulp.task('docs', CONFIG === 'clean' ? ['transcc', 'makedocs'] : [],
 );
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
-gulp.task('makedocs', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
-gulp.task('mungo', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo', 'Desktop_Game'));
+gulp.task('makedocs', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
+gulp.task('mungo', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo', 'Desktop_Game'));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 

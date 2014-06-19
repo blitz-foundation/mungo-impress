@@ -6,6 +6,9 @@
   },
   "environment": {
     "release": {
+      "options": {
+        "build": "clean"
+      },
       "transcc": {
         "args": ["-config=release", "-target=C++_Tool", "-builddir=.build"],
         "config": "develop"
