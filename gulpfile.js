@@ -1,4 +1,5 @@
-var ENVIRONMENT = "release";
+var ENVIRONMENT = 'release';
+var CONFIG = 'clean'; //or fast
 
 var gulp = require('gulp');
 var fs = require('fs');
@@ -22,7 +23,7 @@ if (process.platform == 'win32') {
 }
 
 if (environment.transcc.config !== '') {
-  environment.transcc.args = environment.transcc.args.concat('-cfgfile=config.' + environment.transcc.config + '.' + host + '.txt');
+  environment.transcc.args.push('-cfgfile=config.' + environment.transcc.config + '.' + host + '.txt');
 }
 
 if (config.path.transcc === '') {
@@ -168,7 +169,7 @@ gulp.task('dependencies', function(callback) {
   });
 });
 
-gulp.task('docs', ['transcc', 'makedocs'],
+gulp.task('docs', CONFIG === 'clean' ? ['transcc', 'makedocs'] : [],
   function(callback) {
     return exec(makedocs, function(err, stdout, stderr) {
       console.log(stdout);
@@ -180,8 +181,8 @@ gulp.task('docs', ['transcc', 'makedocs'],
 );
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
-gulp.task('makedocs', ['transcc'], buildMonkeyProject('makedocs', 'makedocs_' + host));
-gulp.task('mungo', buildMonkeyProject('mungo', '../mungo'));
+gulp.task('makedocs', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
+gulp.task('mungo', CONFIG === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo'));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 
