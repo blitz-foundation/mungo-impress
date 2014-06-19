@@ -138,6 +138,7 @@ gulp.task('transcc', function(callback) {
 });
 
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
+gulp.task('jentos', buildQtProject('jentos'));
 
 gulp.task('dependencies', function(callback) {
   environment.qt.dependencies.forEach(function(item) {
