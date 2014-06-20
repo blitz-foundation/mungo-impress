@@ -739,8 +739,8 @@ Class ApiDoccer Implements ILinkResolver
 					doccing=scope
 					
 					george.AddPage cdecl.PagePath(),additional
-					If cdecl.kind="class" george.AddToIndex "Classes",cdecl.ident,cdecl.PagePath()
-					If cdecl.kind="interface" george.AddToIndex "Interfaces",cdecl.ident,cdecl.PagePath()
+					If Not additional And cdecl.kind="class" george.AddToIndex "Classes",cdecl.ident,cdecl.PagePath()
+					If Not additional And cdecl.kind="interface" george.AddToIndex "Interfaces",cdecl.ident,cdecl.PagePath()
 
 					LoadExample doccing,egdir
 					
@@ -752,7 +752,7 @@ Class ApiDoccer Implements ILinkResolver
 					doccing=New Decl( pdecl,scope )
 					
 					george.AddPage doccing.PagePath(),additional
-					If doccing.kind = "function" And scope = mdecl Then
+					If Not additional And doccing.kind = "function" And scope = mdecl Then
 						george.AddGlobalDecl(doccing.path, doccing)
 						george.AddToIndex "Functions", doccing.ident, doccing.PagePath()
 					End If

@@ -143,24 +143,25 @@ Class George Implements ILinkResolver,IPrettifier
 '		Print "Adding page:"+path+" url:"+url
 
 		pages.Set path,url
-
-		Local id:=StripDir( path )
-		Local i:=id.Find( "#" )
 		
-		If i=-1
-			Local i:=path.Find( "/" )
-			If i<>-1 And path.Find( "/",i+1 )=-1
-				AddToIndex path[..i],id,path
+		If Not additional
+			Local id:=StripDir( path )
+			Local i:=id.Find( "#" )
+			
+			If i=-1
+				Local i:=path.Find( "/" )
+				If i<>-1 And path.Find( "/",i+1 )=-1
+					AddToIndex path[..i],id,path
+				Endif
+			Else
+				id=id[i+1..]
 			Endif
-		Else
-			id=id[i+1..]
-		Endif
-		
-		AddToIndex( "Index",id,path )
+			
+			AddToIndex( "Index",id,path )
+		EndIf
 	End
 	
-	Method AddToIndex:Void( cat:String,ident:String,path:String )
-	
+	Method AddToIndex:Void( cat:String,ident:String,path:String)	
 		Local i:=ident.Find( "(" )
 		If i<>-1 ident=ident[..i]
 		
@@ -297,18 +298,18 @@ Class George Implements ILinkResolver,IPrettifier
 		WriteSearchIndex(index, name)
 	End Method
 	
-	Method SetSearchIndexData(database:JsonArray, index:Int, ident:String, summary:String, url:String)
+	Method SetSearchIndexData(data:JsonArray, index:Int, ident:String, summary:String, url:String)
 		Local item:JsonObject = New JsonObject()
 		
 		item.SetString("ident", ident)
 		item.SetString("summary", summary)
 		item.SetString("url", url)
 		
-		database.Set(index, item)		
+		data.Set(index, item)		
 	End Method
 	
-	Method WriteSearchIndex(database:JsonArray, name:String)
-		SaveString(database.ToJson(), "docs/html/search/" + name + ".json")
+	Method WriteSearchIndex(index:JsonArray, name:String)
+		SaveString(index.ToJson(), "docs/html/search/" + name + ".json")
 	End Method
 	
 	Method HtmlEsc:String( str:String )
