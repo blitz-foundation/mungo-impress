@@ -23,7 +23,7 @@ Class DocsDoccer Implements ILinkResolver
 	
 	Method ParseDocs:Void( dir:String,indexcat:String,additional:Bool=False )	
 		For Local f:=Eachin LoadDir( dir,True )
-		
+			If Not additional And f.StartsWith(LANGUAGE_PREFIX) Continue		
 			If ExtractExt( f )<>"monkeydoc" Continue
 			
 			Local docpath:=StripExt( f )

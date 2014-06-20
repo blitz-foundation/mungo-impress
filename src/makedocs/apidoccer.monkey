@@ -4,7 +4,6 @@ Import parser
 Import modpath
 
 Global ignore_mods:=New StringSet
-Global additional_path:String
 
 Class Decl
 
@@ -673,7 +672,7 @@ Class ApiDoccer Implements ILinkResolver
 	
 	End
 	
-	Method ParseMonkeydocFile:Void( srcpath:String,modpath:String )
+	Method ParseMonkeydocFile:Void( srcpath:String,modpath:String,additional:Bool=False )
 	
 		george.SetErrInfo srcpath
 		
@@ -684,7 +683,7 @@ Class ApiDoccer Implements ILinkResolver
 		Local mdecl:=New ModuleDecl( pdecl,Self )
 		scopes.Set mdecl.path,mdecl
 		
-		george.AddPage mdecl.PagePath()
+		george.AddPage mdecl.PagePath(),additional
 		
 		Local scope:ScopeDecl=mdecl
 		Local sect:="description"
@@ -739,7 +738,7 @@ Class ApiDoccer Implements ILinkResolver
 					scope=cdecl
 					doccing=scope
 					
-					george.AddPage cdecl.PagePath()
+					george.AddPage cdecl.PagePath(),additional
 					If cdecl.kind="class" george.AddToIndex "Classes",cdecl.ident,cdecl.PagePath()
 					If cdecl.kind="interface" george.AddToIndex "Interfaces",cdecl.ident,cdecl.PagePath()
 
@@ -752,7 +751,7 @@ Class ApiDoccer Implements ILinkResolver
 
 					doccing=New Decl( pdecl,scope )
 					
-					george.AddPage doccing.PagePath()
+					george.AddPage doccing.PagePath(),additional
 					If doccing.kind = "function" And scope = mdecl Then
 						george.AddGlobalDecl(doccing.path, doccing)
 						george.AddToIndex "Functions", doccing.ident, doccing.PagePath()
@@ -818,17 +817,28 @@ Class ApiDoccer Implements ILinkResolver
 					If name<>StripDir( dir ) q+="."+name
 					
 					Local t:=dir+"/"+name+".monkeydoc"
+					Local found:=False
+					
 					If FileType( t )=FILETYPE_FILE
 						ParseMonkeydocFile t,q
-						Continue
+						found=True
 					Endif
 					
 					t=dir+"/monkeydoc/"+name+".monkeydoc"
 					If FileType( t )=FILETYPE_FILE
 						ParseMonkeydocFile t,q
-						Continue
+						found=True
 					Endif
-
+					
+					If additional_path
+						t=dir+"/monkeydoc/"+additional_path+"/"+name+".monkeydoc"
+						If FileType( t )=FILETYPE_FILE
+							ParseMonkeydocFile t,q,True
+							found=True
+						Endif
+					EndIf
+					
+					If found Continue
 					ParseMonkeyFile p,q
 
 				Endif

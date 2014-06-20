@@ -11,6 +11,9 @@ Import toker
 Import apidoccer
 Import docsdoccer
 
+Global additional_path:String
+Const LANGUAGE_PREFIX:String="lang-"
+
 Class George Implements ILinkResolver,IPrettifier
 
 	Field errinfo:String
@@ -399,7 +402,7 @@ Function Main:Int()
 			
 		Case "-language", "-lang"
 			If i<AppArgs.Length
-				additional_path = "lang-" + AppArgs[i]
+				additional_path = LANGUAGE_PREFIX + AppArgs[i]
 				i+=1
 			Endif
 		End
