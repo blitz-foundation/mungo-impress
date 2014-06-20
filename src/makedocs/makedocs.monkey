@@ -5,6 +5,7 @@
 Import os
 Import brl.markdown
 Import brl.pagemaker
+Import brl.json
 
 Import toker
 Import apidoccer
@@ -19,6 +20,7 @@ Class George Implements ILinkResolver,IPrettifier
 	Field pages:=New StringMap<String>					'maps docpath to url
 	Field content:=New StringMap<String>				'maps url to html
 	Field indexcats:=New StringMap<StringMap<String>>	'maps index categories to indexes
+	Field globalDecls:= New StringMap<apidoccer.Decl>
 
 	Field srcdir:String
 	Field docbase:String
@@ -168,6 +170,10 @@ Class George Implements ILinkResolver,IPrettifier
 		index.Set uident,path
 	End
 	
+	Method AddGlobalDecl(name:String, decl:apidoccer.Decl)
+		globalDecls.Set(name, decl)
+	End Method
+	
 	Method SetPageContent:Void( page:String,html:String )
 		content.Set page,html
 	End
@@ -257,8 +263,50 @@ Class George Implements ILinkResolver,IPrettifier
 		
 	End
 	
+	Method MakeDatabase:Void(name:String, data:Stack<ScopeDecl>)
+		Local database:JsonArray = New JsonArray(data.Length)
+		Local markdown:Markdown = New Markdown(Self, Self)
+		
+		Local i:Int
+		For Local s:ScopeDecl = EachIn data
+			SetDatabaseData(database, i, s.ident, markdown.ToHtml(s.docs.Get("summary")), GetPageUrl(s.PagePath()))
+			i += 1
+		Next
+
+		WriteDatabase(database, name)
+	End Method
+	
+	Method MakeDatabase:Void(name:String, data:Stack<apidoccer.Decl>)
+		Local database:JsonArray = New JsonArray(data.Length)
+		Local markdown:Markdown = New Markdown(Self, Self)
+		
+		Local i:Int
+		For Local s:apidoccer.Decl = EachIn data
+			Local desc:String[] = s.docs.Get("description").Split("~n")
+			Local summary:String = markdown.ToHtml(desc[0].Replace("@", ""))
+			SetDatabaseData(database, i, s.ident, summary, GetPageUrl(s.PagePath()))
+			i += 1
+		Next
+		
+		WriteDatabase(database, name)
+	End Method
+	
+	Method SetDatabaseData(database:JsonArray, index:Int, ident:String, summary:String, url:String)
+		Local item:JsonObject = New JsonObject()
+		
+		item.SetString("ident", ident)
+		item.SetString("summary", summary)
+		item.SetString("url", url)
+		
+		database.Set(index, item)		
+	End Method
+	
+	Method WriteDatabase(database:JsonArray, name:String)
+		SaveString(database.ToJson(), "docs/html/database/" + name + ".json")
+	End Method
+	
 	Method HtmlEsc:String( str:String )
-		Return str.Replace( "&","&amp;" ).Replace( "<","&lt;" ).Replace( ">","&gt;" )
+		Return str.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
 	End
 	
 	Field inrem:=0
@@ -353,6 +401,7 @@ Function Main:Int()
 	DeleteDir "docs/html",True
 	CreateDir "docs/html"
 	CreateDir "docs/html/data"
+	CreateDir "docs/html/database/"
 	CreateDir "docs/html/examples"
 	CopyDir   "docs/htmldoc","docs/html",True
 	
@@ -378,8 +427,36 @@ Function Main:Int()
 	
 	Print "Making docs..."
 	docsdoccer.MakeDocs
-	
+		
 	george.MakeDocs
+	
+	Print "Making database..."
+	Local modules:Stack<ScopeDecl> = New Stack<ScopeDecl>()
+	Local classes:Stack<ScopeDecl> = New Stack<ScopeDecl>()
+	Local interfaces:Stack<ScopeDecl> = New Stack<ScopeDecl>()
+	Local functions:Stack<apidoccer.Decl > = New Stack<apidoccer.Decl > ()
+	'note: TODO monkey keywords database
+	
+	For Local decl:ScopeDecl = EachIn apidoccer.scopes.Values()
+		If (ModuleDecl(decl)) Then
+			modules.Push(decl)
+		ElseIf(ClassDecl(decl)) Then
+			If (decl.kind = "class") Then
+				classes.Push(decl)
+			Else
+				interfaces.Push(decl)
+			End If
+		End If
+	Next
+	
+	For Local decl:apidoccer.Decl = EachIn george.globalDecls.Values()
+		functions.Push(decl)
+	Next
+	
+	george.MakeDatabase("modules", modules)
+	george.MakeDatabase("classes", classes)
+	george.MakeDatabase("interfaces", interfaces)
+	george.MakeDatabase("functions", functions)
 	
 	Print "Makedocs finished!"
 	Return 0

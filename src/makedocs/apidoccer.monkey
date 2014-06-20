@@ -656,7 +656,10 @@ Class ApiDoccer Implements ILinkResolver
 					AddDocsToDecl docs,decl
 					
 					george.AddPage decl.PagePath()
-					If decl.kind="function" And docscope=mdecl george.AddToIndex "Functions",decl.ident,decl.PagePath()
+					If decl.kind = "function" And docscope = mdecl Then
+						george.AddGlobalDecl(decl.path, decl)
+						george.AddToIndex "Functions", decl.ident, decl.PagePath()
+					End If
 					
 					LoadExample decl,egdir
 				Endif
@@ -749,7 +752,10 @@ Class ApiDoccer Implements ILinkResolver
 					doccing=New Decl( pdecl,scope )
 					
 					george.AddPage doccing.PagePath()
-					If doccing.kind="function" And scope=mdecl george.AddToIndex "Functions",doccing.ident,doccing.PagePath()
+					If doccing.kind = "function" And scope = mdecl Then
+						george.AddGlobalDecl(doccing.path, doccing)
+						george.AddToIndex "Functions", doccing.ident, doccing.PagePath()
+					End If
 
 					LoadExample doccing,egdir
 
