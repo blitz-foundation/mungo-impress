@@ -267,22 +267,22 @@ Class George Implements ILinkResolver,IPrettifier
 		
 	End
 	
-	Method MakeDatabase:Void(name:String, data:Stack<ScopeDecl>)
-		Local database:JsonArray = New JsonArray(data.Length)
+	Method MakeSearchIndex:Void(name:String, data:Stack<ScopeDecl>)
+		Local index:JsonArray = New JsonArray(data.Length)
 		Local markdown:Markdown = New Markdown(Self, Self)
 		
 		Local i:Int
 		For Local s:ScopeDecl = EachIn data
 			SetErrInfo s.path
-			SetDatabaseData(database, i, s.ident, markdown.ToHtml(s.docs.Get("summary")), GetPageUrl(s.PagePath()))
+			SetSearchIndexData(index, i, s.ident, markdown.ToHtml(s.docs.Get("summary")), GetPageUrl(s.PagePath()))
 			i += 1
 		Next
 
-		WriteDatabase(database, name)
+		WriteSearchIndex(index, name)
 	End Method
 	
-	Method MakeDatabase:Void(name:String, data:Stack<apidoccer.Decl>)
-		Local database:JsonArray = New JsonArray(data.Length)
+	Method MakeSearchIndex:Void(name:String, data:Stack<apidoccer.Decl>)
+		Local index:JsonArray = New JsonArray(data.Length)
 		Local markdown:Markdown = New Markdown(Self, Self)
 		
 		Local i:Int
@@ -290,14 +290,14 @@ Class George Implements ILinkResolver,IPrettifier
 			SetErrInfo s.path			
 			Local desc:String[] = s.docs.Get("description").Split("~n")
 			Local summary:String = markdown.ToHtml(desc[0].Replace("@", ""))
-			SetDatabaseData(database, i, s.ident, summary, GetPageUrl(s.PagePath()))
+			SetSearchIndexData(index, i, s.ident, summary, GetPageUrl(s.PagePath()))
 			i += 1
 		Next
 		
-		WriteDatabase(database, name)
+		WriteSearchIndex(index, name)
 	End Method
 	
-	Method SetDatabaseData(database:JsonArray, index:Int, ident:String, summary:String, url:String)
+	Method SetSearchIndexData(database:JsonArray, index:Int, ident:String, summary:String, url:String)
 		Local item:JsonObject = New JsonObject()
 		
 		item.SetString("ident", ident)
@@ -307,8 +307,8 @@ Class George Implements ILinkResolver,IPrettifier
 		database.Set(index, item)		
 	End Method
 	
-	Method WriteDatabase(database:JsonArray, name:String)
-		SaveString(database.ToJson(), "docs/html/database/" + name + ".json")
+	Method WriteSearchIndex(database:JsonArray, name:String)
+		SaveString(database.ToJson(), "docs/html/search/" + name + ".json")
 	End Method
 	
 	Method HtmlEsc:String( str:String )
@@ -471,10 +471,10 @@ Function Main:Int()
 			functions.Push(decl)
 		Next
 		
-		george.MakeDatabase("modules", modules)
-		george.MakeDatabase("classes", classes)
-		george.MakeDatabase("interfaces", interfaces)
-		george.MakeDatabase("functions", functions)
+		george.MakeSearchIndex("modules", modules)
+		george.MakeSearchIndex("classes", classes)
+		george.MakeSearchIndex("interfaces", interfaces)
+		george.MakeSearchIndex("functions", functions)
 	End
 	
 	Print "Makedocs finished!"
