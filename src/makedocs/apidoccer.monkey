@@ -4,6 +4,7 @@ Import parser
 Import modpath
 
 Global ignore_mods:=New StringSet
+Global additional_path:String
 
 Class Decl
 
@@ -128,7 +129,7 @@ Class ImportDecl Extends Decl
 	Method FindDeclHere:Decl( path:String )
 		Local mdecl:=Resolve()
 		If mdecl Return mdecl.FindDeclHere( path )
-		Return null
+		Return Null
 	End
 
 End
@@ -523,7 +524,7 @@ Class ApiDoccer Implements ILinkResolver
 		Local docs:StringMap<StringStack>
 		Local sect:String
 		
-		Local pub:=True,mdoc:=true
+		Local pub:=True,mdoc:=True
 		
 		Local egdir:=ExtractDir( srcpath )+"/examples"
 		If FileType( egdir )<>FILETYPE_DIR egdir=""

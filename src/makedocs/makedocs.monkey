@@ -120,7 +120,7 @@ Class George Implements ILinkResolver,IPrettifier
 	
 	Method GetPageUrl:String( path:String )
 		Return pages.Get( path )
-	end
+	End
 	
 	Method GetIndex:StringMap<String>( cat:String )
 		Local index:=indexcats.Get( cat )
@@ -131,9 +131,10 @@ Class George Implements ILinkResolver,IPrettifier
 		Return index
 	End
 	
-	Method AddPage:Void( path:String )
+	Method AddPage:Void( path:String,additional:Bool=False )
+		If (additional) path = path.Replace("/" + additional_path, "")
 	
-		If pages.Contains( path ) Print "Overwriting page:"+path
+		If Not additional And pages.Contains( path ) Print "Overwriting page:"+path
 
 		Local url:=MakeUrl( path )
 '		Print "Adding page:"+path+" url:"+url
@@ -393,6 +394,12 @@ Function Main:Int()
 		Case "-ignore"
 			If i<AppArgs.Length
 				ignore_mods.Insert AppArgs[i]
+				i+=1
+			Endif
+			
+		Case "-language", "-lang"
+			If i<AppArgs.Length
+				additional_path = "lang-" + AppArgs[i]
 				i+=1
 			Endif
 		End

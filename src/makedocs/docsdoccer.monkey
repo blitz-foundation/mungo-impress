@@ -21,18 +21,21 @@ Class DocsDoccer Implements ILinkResolver
 		Return george.ResolveLink( link,text )
 	End
 	
-	Method ParseDocs:Void( dir:String,indexcat:String )
-	
+	Method ParseDocs:Void( dir:String,indexcat:String,additional:Bool=False )	
 		For Local f:=Eachin LoadDir( dir,True )
 		
 			If ExtractExt( f )<>"monkeydoc" Continue
 			
 			Local docpath:=StripExt( f )
 			
-			george.AddPage docpath
+			george.AddPage docpath,additional
 			
 			docs.Set docpath,dir+"/"+f
 		Next
+		
+		If additional_path And FileType(dir + "/" + additional_path) = FILETYPE_DIR Then
+			ParseDocs(dir + "/" + additional_path, indexcat, True)
+		EndIf
 	End
 	
 	Method ParseDocs:Void()
