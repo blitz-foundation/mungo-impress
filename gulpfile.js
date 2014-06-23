@@ -2,6 +2,7 @@ var ENVIRONMENT = 'release';
 
 var gulp = require('gulp');
 var fs = require('fs');
+var walk = require('walk').walk;
 var exec = require('child_process').execFile;
 var path = require('path');
 var wrench = require('wrench');
@@ -216,9 +217,32 @@ gulp.task('docs', environment.options.build === 'clean' ? ['transcc', 'makedocs'
         return;
       }
 
+      var walker = walk('./docs/html/data');
+      walker.on('file', function(root, fileStats, next) {
+        if (path.extname(fileStats.name) == '.monkey') {
+          var basename = path.basename(fileStats.name, '.monkey');
 
+          if (path.basename(root) == basename) {
+            exec(transcc,
+              ['-config=release', '-target=Html5_Game', '-builddir='+basename+'.build', path.resolve(root, fileStats.name)],
+              function(err, stdout, stderr) {
+                console.log(stdout);
+                console.log(stderr);
 
-      callback(err);
+                next();
+              }
+            );
+          } else {
+            next();
+          }
+        } else {
+          next();
+        }
+      });
+
+      walker.on('end', function() {
+        callback(err);
+      });
     });
   }
 );

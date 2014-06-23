@@ -5,6 +5,7 @@
         "gulp": "",
         "merge-stream": "",
         "wrench": "",
+        "walk": "",
         "gulp-svg2png": ""
     }
 }
