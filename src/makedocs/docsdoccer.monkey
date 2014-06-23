@@ -33,7 +33,7 @@ Class DocsDoccer Implements ILinkResolver
 			docs.Set docpath,dir+"/"+f
 		Next
 		
-		If additional_path And FileType(dir + "/" + additional_path) = FILETYPE_DIR Then
+		If Not additional And additional_path And FileType(dir + "/" + additional_path) = FILETYPE_DIR Then
 			ParseDocs(dir + "/" + additional_path, indexcat, True)
 		EndIf
 	End
