@@ -70,37 +70,38 @@ var buildQtProject = function(projectName, projectDestName) {
         console.log(stdout);
         console.log(stderr);
 
-        if (!err) {
-          exec(make, {cwd: buildDir},
-            function(err, stdout, stderr) {
-              console.log(stdout);
-              console.log(stderr);
-
-              var origin = projectName;
-              var dest = projectDestName;
-
-              if (process.platform == 'win32') {
-                origin += '.exe';
-                dest += '.exe';
-              }
-
-              var tmp = path.resolve(buildDir, 'release', origin);
-
-              if (!fs.existsSync(tmp)) {
-                tmp = path.resolve(buildDir, 'debug', origin);
-              }
-
-              fs.renameSync(
-                tmp,
-                path.resolve(bin, dest)
-              );
-
-              callback(err);
-            }
-          )
-        } else {
+        if (err) {
           callback(err);
+          return;
         }
+
+        exec(make, {cwd: buildDir},
+          function(err, stdout, stderr) {
+            console.log(stdout);
+            console.log(stderr);
+
+            var origin = projectName;
+            var dest = projectDestName;
+
+            if (process.platform == 'win32') {
+              origin += '.exe';
+              dest += '.exe';
+            }
+
+            var tmp = path.resolve(buildDir, 'release', origin);
+
+            if (!fs.existsSync(tmp)) {
+              tmp = path.resolve(buildDir, 'debug', origin);
+            }
+
+            fs.renameSync(
+              tmp,
+              path.resolve(bin, dest)
+            );
+
+            callback(err);
+          }
+        );
       }
     );
   }
@@ -132,6 +133,11 @@ var buildMonkeyProject = function(projectName, projectDestName, target) {
       function(err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
+
+        if (err) {
+          callback(err);
+          return;
+        }
 
         var origin = 'main_' + host;
         var dest = projectDestName;
@@ -204,6 +210,13 @@ gulp.task('docs', environment.options.build === 'clean' ? ['transcc', 'makedocs'
     return exec(makedocs, function(err, stdout, stderr) {
       console.log(stdout);
       console.log(stderr);
+
+      if (err) {
+        callback(err);
+        return;
+      }
+
+
 
       callback(err);
     });
