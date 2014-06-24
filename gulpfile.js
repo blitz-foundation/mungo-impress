@@ -27,13 +27,13 @@ if (environment.transcc.config !== '') {
   environment.transcc.args.push('-cfgfile=config.' + environment.transcc.config + '.' + host + '.txt');
 }
 
-if (config.path.transcc === '') {
-  config.path.transcc = './bin';
+if (config.path.monkey === '') {
+  config.path.monkey = '.';
 }
 
-var transcc = config.path.transcc + '/transcc_' + host;
-var qmake = config.path.qt + '/qmake';
-var make = config.path.mingw + '/mingw32-make';
+var transcc = config.path.monkey + '/bin/transcc_' + host;
+var qmake = config.path.qt + '/bin/qmake';
+var make = config.path.mingw + '/bin/mingw32-make';
 var bin = './bin';
 var makedocs = bin + '/makedocs_' + host;
 
@@ -187,7 +187,8 @@ gulp.task('dependencies', function(callback) {
   environment.qt.dependencies.forEach(function(item) {
     if (Array.isArray(item)) {
       item.forEach(function(dep) {
-        fs.createReadStream(path.resolve(config.path.qt, dep)).pipe(fs.createWriteStream(path.resolve(bin, dep)));
+        fs.createReadStream(path.resolve(config.path.qt, dep))
+          .pipe(fs.createWriteStream(path.resolve(bin, path.basename(dep))));
       });
     } else {
       var dest = path.resolve(bin, path.basename(item));

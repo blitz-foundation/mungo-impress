@@ -1,6 +1,6 @@
 {
   "path": {
-    "transcc": "",
+    "monkey": "",
     "qt": "",
     "mingw": ""
   },
@@ -18,12 +18,12 @@
       },
       "qt": {
         "dependencies": [
-          ["Qt5Sensors.dll", "Qt5Sql.dll", "Qt5Core.dll", "Qt5WebKit.dll", "Qt5Gui.dll", "Qt5WebKitWidgets.dll",
-           "Qt5Multimedia.dll", "Qt5Widgets.dll", "Qt5MultimediaWidgets.dll", "Qt5Network.dll", "icudt52.dll",
-           "Qt5OpenGL.dll", "icuin52.dll", "Qt5Positioning.dll", "icuuc52.dll",
-           "Qt5PrintSupport.dll", "libstdc++-6.dll", "Qt5Qml.dll", "Qt5Quick.dll"],
+          ["bin/Qt5Sensors.dll", "bin/Qt5Sql.dll", "bin/Qt5Core.dll", "bin/Qt5WebKit.dll", "bin/Qt5Gui.dll",
+           "bin/Qt5WebKitWidgets.dll", "bin/Qt5Multimedia.dll", "bin/Qt5Widgets.dll", "bin/Qt5MultimediaWidgets.dll",
+           "bin/Qt5Network.dll", "bin/icudt52.dll", "bin/Qt5OpenGL.dll", "bin/icuin52.dll", "bin/Qt5Positioning.dll",
+           "bin/icuuc52.dll", "bin/Qt5PrintSupport.dll", "bin/libstdc++-6.dll", "bin/Qt5Qml.dll", "bin/Qt5Quick.dll"],
 
-          "../plugins/platforms"
+          "plugins/platforms"
         ]
       }
     }
