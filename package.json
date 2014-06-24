@@ -2,10 +2,10 @@
     "name": "mungo-impress",
     "version": "1.0.0",
     "devDependencies": {
-        "gulp": "",
-        "merge-stream": "",
-        "wrench": "",
-        "walk": "",
-        "gulp-svg2png": ""
+        "gulp": "~3.8.1",
+        "merge-stream": "~0.1.1",
+        "wrench": "~1.5.8",
+        "walk": "~2.3.3",
+        "gulp-svg2png": "~0.2.3"
     }
 }
