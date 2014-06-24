@@ -207,7 +207,7 @@ gulp.task('dependencies', function(callback) {
   });
 });
 
-gulp.task('docs', environment.options.build === 'clean' ? ['transcc', 'makedocs'] : [],
+gulp.task('docs', environment.options.build === 'clean' ? ['templates', 'transcc', 'makedocs'] : [],
   function(callback) {
     return exec(makedocs, function(err, stdout, stderr) {
       console.log(stdout);
@@ -242,11 +242,67 @@ gulp.task('docs', environment.options.build === 'clean' ? ['transcc', 'makedocs'
       });
 
       walker.on('end', function() {
-        callback(err);
+        callback();
       });
     });
   }
 );
+
+gulp.task('templates', function(callback) {
+  var walker = walk('./docs/templates');
+
+  walker.on('file', function(root, fileStats, next) {
+    if (fileStats.name == 'bower.json') {
+      var bower = 'bower';
+      var command = 'install';
+
+      if (fs.existsSync(path.resolve(root, 'bower_components'))) {
+        command = 'update';
+      }
+
+      if (process.platform == 'win32') {
+        bower += '.cmd';
+      }
+
+      exec(bower, [command], {cwd: root}, function(err, stdout, stderr) {
+        console.log(stdout);
+        console.log(stderr);
+
+        next();
+      });
+    } else {
+      next();
+    }
+
+  });
+
+  walker.on('end', function() {
+    var walker = walk('./docs/templates');
+
+    walker.on('file', function(root, fileStats, next) {
+      if (fileStats.name == 'pagestyle.less') {
+        var lessc = 'lessc';
+
+        if (process.platform == 'win32') {
+          lessc += '.cmd';
+        }
+
+        exec(lessc, [fileStats.name, 'pagestyle.css'], {cwd: root}, function(err, stdout, stderr) {
+          console.log(stdout);
+          console.log(stderr);
+
+          next();
+        });
+      } else {
+        next();
+      }
+    });
+
+    walker.on('end', function() {
+      callback();
+    });
+  });
+});
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
 gulp.task('makedocs', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
@@ -255,7 +311,7 @@ gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 
 if (environment.options.build === 'clean') {
-  gulp.task('default', ['dependencies', 'mserver', 'jentos', 'transcc', 'docs', 'mungo']);
+  gulp.task('default', ['dependencies', 'templates', 'mserver', 'jentos', 'transcc', 'docs', 'mungo']);
 } else {
   gulp.task('default', ['dependencies', 'mserver', 'jentos', 'docs', 'mungo']);
 }

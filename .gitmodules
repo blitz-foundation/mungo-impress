@@ -73,3 +73,6 @@
 [submodule "src/jentos"]
 	path = src/jentos
 	url = http://source.mungo.io/tools/jentos.git
+[submodule "docs/templates/wiki"]
+	path = docs/templates/wiki
+	url = http://source.mungo.io/docs/template-wiki.git
