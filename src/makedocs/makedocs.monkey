@@ -423,8 +423,12 @@ Function Main:Int()
 	CreateDir "docs/html/examples"
 	CopyDir   "docs/htmldoc","docs/html",True
 	
-	Local style:=LoadString( "bin/docstyle.txt" ).Trim()
+	Local styleData:=LoadString( "bin/docstyle.txt" ).Trim().Split(":")
+	
+	Local style:=styleData[0]
 	If Not style Or FileType( "docs/templates/"+style )<>FILETYPE_DIR style="devolonter"
+		
+	If (styleData.Length() > 1) additional_path = LANGUAGE_PREFIX + styleData[1]	
 	
 	Local george:=New George( "docs/templates/"+style )
 	
