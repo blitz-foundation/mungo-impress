@@ -33,6 +33,15 @@ Class GlfwBuilder Extends Builder
 		
 		SaveString main,"main.cpp"
 		
+		Local icon:=GetConfigVar("GLFW_APP_ICON")
+		If icon
+			If HostOS="winnt"
+				Local resource:=LoadString( "resource.rc" )
+				resource=ReplaceBlock( resource,"RESOURCE","APP_ICON ICON ~q" + icon + "~q")
+				SaveString resource,"resource.rc"
+			End
+		End
+		
 		If tcc.opt_build
 
 			ChangeDir dst
@@ -44,11 +53,17 @@ Class GlfwBuilder Extends Builder
 			Case "release"
 				ccopts+=" -O3 -DNDEBUG"
 			End
+			
+			Local ccobjs:=""
+			
+			If HostOS="winnt" And icon Then
+				If Execute("windres ../resource.rc -O coff -o ../resource.res", False) ccobjs += "../resource.res"
+			End
 
 			Local cmd:="make"
 			If HostOS="winnt" And FileType( tcc.MINGW_PATH+"/bin/mingw32-make.exe" ) cmd="mingw32-make"
 			
-			Execute cmd+" CCOPTS=~q"+ccopts+"~q OUT=~q"+casedConfig+"/MonkeyGame~q"
+			Execute cmd+" CCOPTS=~q"+ccopts+"~q CCOBJS=~q"+ccobjs+"~q OUT=~q"+casedConfig+"/MonkeyGame~q"
 			
 			If tcc.opt_run
 
