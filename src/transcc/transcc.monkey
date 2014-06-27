@@ -119,13 +119,15 @@ Class Target
 	Field dir:String
 	Field name:String
 	Field system:String
+	Field version:String
 	Field builder:Builder
 	
-	Method New(abspath:String, dir:String, name:String, system:String, builder:Builder)
+	Method New(abspath:String, dir:String, name:String, system:String, version:String, builder:Builder)
 		Self.abspath = abspath
 		Self.dir=dir
 		Self.name=name
 		Self.system=system
+		Self.version=version
 		Self.builder=builder
 	End
 End
@@ -247,7 +249,7 @@ Class TransCC
 				If system
 					Local builder:=_builders.Get( GetConfigVar( "TARGET_BUILDER" ) )
 					If builder
-						_targets.Set name, New Target(ExtractDir(t), f, name, system, builder)
+						_targets.Set name, New Target(ExtractDir(t), f, name, system, GetConfigVar( "TARGET_VERSION" ), builder)
 					Endif
 				Endif
 			Endif

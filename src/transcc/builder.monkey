@@ -1,6 +1,7 @@
 
 Import transcc
 Import reflection.reflector
+Import brl.json
 
 Class Builder
 
@@ -63,10 +64,60 @@ Class Builder
 		If tcc.opt_builddir
 			buildPath=ExtractDir( tcc.opt_srcpath )+"/"+tcc.opt_builddir
 		Else
-			buildPath=StripExt( tcc.opt_srcpath )+".build.mungo."+tcc.GetReleaseVersion()
+			buildPath=StripExt( tcc.opt_srcpath )+".build"
 		Endif
 		
-		Local targetPath:= buildPath + "/" + tcc.target.dir	'ENV_TARGET		
+		Local targetPath:= buildPath + "/" + tcc.target.dir	'ENV_TARGET
+		
+		If Not tcc.opt_builddir
+			Local buildMetaPath:String = buildPath + "/build.meta.json"
+			Local buildMetaData:JsonObject = Null
+			
+			If FileType(buildMetaPath) = FILETYPE_FILE
+				buildMetaData = New JsonObject(LoadString(buildMetaPath))
+			End		
+			
+			If FileType(targetPath) = FILETYPE_DIR
+				If buildMetaData
+					Local targets:=JsonObject(buildMetaData.Get("targets"))
+					
+					If targets And targets.GetString(tcc.target.name) <> tcc.target.version
+						CopyDir(targetPath,targetPath + ".old-v" + targets.GetString(tcc.target.name), True, True)
+						DeleteDir(targetPath, True)						
+					End						
+				Else
+					Local oldTargetPath:=targetPath + ".old"
+					
+					If FileType(oldTargetPath) <> FILETYPE_NONE
+						Local i:Int = 1
+						
+						While FileType(oldTargetPath + i) <> FILETYPE_NONE
+							i += 1
+						Wend
+						
+						oldTargetPath += i
+					End	
+					
+					CopyDir(targetPath,oldTargetPath, True, True)
+					DeleteDir(targetPath, True)				
+				End
+			End
+			
+			If Not buildMetaData 
+				buildMetaData = New JsonObject()
+			End
+			
+			Local targets:=JsonObject(buildMetaData.Get("targets"))
+			
+			If Not targets
+				targets = New JsonObject()
+				buildMetaData.Set("targets", targets)
+			End
+			
+			targets.SetString(tcc.target.name, tcc.target.version)			
+			SaveString(buildMetaData.ToJson(), buildPath + "/build.meta.json")
+		End
+				
 		Local cfgPath:= targetPath + "/CONFIG.MONKEY"
 		
 		If FileType(cfgPath) = FILETYPE_FILE
