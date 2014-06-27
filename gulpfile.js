@@ -6,8 +6,7 @@ var walk = require('walk').walk;
 var exec = require('child_process').execFile;
 var path = require('path');
 var wrench = require('wrench');
-var merge = require('merge-stream');
-var svg2png = require('gulp-svg2png');
+var merge = require('merge-stream');;
 
 var config = require('./buildconfig');
 var environment = config.environment[ENVIRONMENT];
@@ -315,10 +314,3 @@ if (environment.options.build === 'clean') {
 } else {
   gulp.task('default', ['dependencies', 'mserver', 'jentos', 'docs', 'mungo']);
 }
-
-
-/*gulp.task('svg2png', function () {
- gulp.src('./src/resources/logo/*.svg')
- .pipe(svg2png())
- .pipe(gulp.dest('./.output/png'));
- });*/
