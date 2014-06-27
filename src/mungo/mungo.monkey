@@ -1,5 +1,7 @@
 Strict
 
+#GLFW_APP_ICON = "../../mungo.ico"
+
 Import mojo.app
 
 Function Main:Int()
