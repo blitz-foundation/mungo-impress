@@ -1,10 +1,11 @@
 {
-    "name": "mungo-impress",
-    "version": "1.0.0",
-    "devDependencies": {
-        "gulp": "~3.8.1",
-        "merge-stream": "~0.1.1",
-        "wrench": "~1.5.8",
-        "walk": "~2.3.3"
-    }
+  "name": "mungo-impress",
+  "version": "1.0.0",
+  "devDependencies": {
+    "gulp": "~3.8.1",
+    "merge-stream": "~0.1.1",
+    "wrench": "~1.5.8",
+    "walk": "~2.3.3",
+    "gulp-zip": "~0.4.0"
+  }
 }

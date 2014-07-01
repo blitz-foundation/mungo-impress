@@ -1,3 +1,4 @@
+var VERSION = '1.0.0-rc';
 var ENVIRONMENT = 'release';
 
 var gulp = require('gulp');
@@ -6,7 +7,8 @@ var walk = require('walk').walk;
 var exec = require('child_process').execFile;
 var path = require('path');
 var wrench = require('wrench');
-var merge = require('merge-stream');;
+var merge = require('merge-stream');
+var zip = require('gulp-zip');
 
 var config = require('./buildconfig');
 var environment = config.environment[ENVIRONMENT];
@@ -301,6 +303,58 @@ gulp.task('templates', function(callback) {
       callback();
     });
   });
+});
+
+gulp.task('dist', ['default'], function() {
+  var dest = './.output/build-' + process.platform;
+
+  if (fs.existsSync(dest)) {
+    wrench.rmdirSyncRecursive(dest);
+  }
+
+  wrench.copyDirSyncRecursive(
+    '.',
+    dest,
+    {
+      forceDelete: false,
+      whitelist: true,
+      filter: function(file) {
+        var found;
+
+        if (file === 'gulpfile.js' || file === 'package.json' || file === 'bower.json' || file === 'settings.ini') {
+          return false;
+        } else if (file === 'node_modules' || file === 'bower_components') {
+          return false;
+        } else if (file.indexOf('.') === 0 || file.indexOf('.build') > 0) {
+          return false;
+        } else if (file.indexOf('buildconfig') === 0 || file.indexOf('config.develop') === 0) {
+          return false;
+        } else if ((file.indexOf('mserver') === 0 || file.indexOf('jentos') === 0) && file.match(/.+\.(pro\.user|user)/)) {
+          return false;
+        } else if (file === 'less' || file.match(/.+\.less/i)) {
+          return false;
+        } else if (found = file.match(/mojo\.(.+)\.(js|as|cpp|cs|java)/i)) {
+          if (found[1] !== 'html5' && found[1] !== 'html5.webgl'  && found[1] !== 'glfw') {
+            return false;
+          }
+        } else if (found = file.match(/asyncimageloader\.(js|as|cpp|cs|java)/i)) {
+          if (found[1] !== 'js') {
+            return false;
+          }
+        } else if (found = file.match(/asyncsoundloader\.(js|as|cpp|cs|java)/i)) {
+          if (found[1] !== 'js') {
+            return false;
+          }
+        }
+
+        return true
+      }
+    }
+  );
+
+  return gulp.src(dest + '/**/*')
+    .pipe(zip('mungo-' + 'v' + VERSION + '-' + process.platform + '.zip'))
+    .pipe(gulp.dest('./.output'));
 });
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
