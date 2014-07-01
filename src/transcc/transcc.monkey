@@ -212,15 +212,6 @@ Class TransCC
 		
 		target.builder.Make
 	End
-
-	Method GetReleaseVersion:String()
-		Local f:=LoadString( monkeydir+"/VERSIONS.TXT" )
-		For Local t:=Eachin f.Split( "~n" )
-			t=t.Trim()
-			If t.StartsWith( "***** v" ) And t.EndsWith( " *****" ) Return t[6..-6]
-		Next
-		Return ""
-	End
 	
 	Method EnumBuilders:Void()
 		For Local it:=Eachin Builders( Self )
