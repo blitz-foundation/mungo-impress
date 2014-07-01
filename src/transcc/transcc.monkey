@@ -7,7 +7,7 @@
 Import trans
 Import builders
 
-Const VERSION:= "1.0.0-1.72"
+Const VERSION:= "1.0.0-rc"
 
 Function Main()
 	Local tcc:=New TransCC
@@ -177,7 +177,7 @@ Class TransCC
 
 		Self.args=args
 	
-		Print "TRANS mungo compiler V" + VERSION
+		Print "TRANS mungo compiler v" + VERSION
 	
 		monkeydir=RealPath( ExtractDir( AppPath )+"/.." )
 
