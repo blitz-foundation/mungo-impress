@@ -76,3 +76,6 @@
 [submodule "docs/templates/wiki"]
 	path = docs/templates/wiki
 	url = http://source.mungo.io/docs/template-wiki.git
+[submodule "targets/javatool"]
+	path = targets/javatool
+	url = http://source.mungo.io/targets/javatool.git
