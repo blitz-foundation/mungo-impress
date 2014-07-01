@@ -1,4 +1,4 @@
-var VERSION = '1.0.0-rc';
+var VERSION = '1.0.0-rc.1';
 var ENVIRONMENT = 'release';
 
 var gulp = require('gulp');
@@ -305,7 +305,7 @@ gulp.task('templates', function(callback) {
   });
 });
 
-gulp.task('dist', ['default'], function() {
+gulp.task('dist', environment.options.build === 'clean' ? ['default'] : [], function() {
   var dest = './.output/build-' + process.platform;
 
   if (fs.existsSync(dest)) {
