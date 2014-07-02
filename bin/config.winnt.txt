@@ -18,9 +18,12 @@ TARGETS_PATH="${MONKEYDIR}/targets"
 '
 HTML_PLAYER="${MONKEYDIR}\bin\mserver_winnt.exe"
 '--------------------
-
-CLOSURE_COMPILER="${MONKEYDIR}\bin\compiler.jar"
-
+'Closure compiler path
+' 
+'https://github.com/google/closure-compiler
+'
+CLOSURE_COMPILER="${MONKEYDIR}\bin\closure\compiler.jar"
+'
 '--------------------
 'Ant build tool path
 '
