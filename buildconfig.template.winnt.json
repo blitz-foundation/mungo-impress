@@ -21,7 +21,8 @@
           ["bin/Qt5Sensors.dll", "bin/Qt5Sql.dll", "bin/Qt5Core.dll", "bin/Qt5WebKit.dll", "bin/Qt5Gui.dll",
            "bin/Qt5WebKitWidgets.dll", "bin/Qt5Multimedia.dll", "bin/Qt5Widgets.dll", "bin/Qt5MultimediaWidgets.dll",
            "bin/Qt5Network.dll", "bin/icudt52.dll", "bin/Qt5OpenGL.dll", "bin/icuin52.dll", "bin/Qt5Positioning.dll",
-           "bin/icuuc52.dll", "bin/Qt5PrintSupport.dll", "bin/libstdc++-6.dll", "bin/Qt5Qml.dll", "bin/Qt5Quick.dll"],
+           "bin/icuuc52.dll", "bin/Qt5PrintSupport.dll", "bin/libstdc++-6.dll", "bin/Qt5Qml.dll", "bin/Qt5Quick.dll",
+           "bin/libgcc_s_dw2-1.dll", "bin/libwinpthread-1.dll"],
 
           "plugins/platforms"
         ]
