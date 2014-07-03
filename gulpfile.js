@@ -96,6 +96,11 @@ var buildQtProject = function(projectName, projectDestName) {
               tmp = path.resolve(buildDir, 'debug', origin);
             }
 
+            if (!fs.existsSync(tmp)) {
+              callback(err);
+              return;
+            }
+
             fs.renameSync(
               tmp,
               path.resolve(bin, dest)
