@@ -64,7 +64,7 @@ Class Builder
 		If tcc.opt_builddir
 			buildPath=ExtractDir( tcc.opt_srcpath )+"/"+tcc.opt_builddir
 		Else
-			buildPath=StripExt( tcc.opt_srcpath )+".build"
+			buildPath = StripExt( tcc.opt_srcpath )+".build"
 		Endif
 		
 		Local targetPath:= buildPath + "/" + tcc.target.dir	'ENV_TARGET
@@ -75,7 +75,7 @@ Class Builder
 			
 			If FileType(buildMetaPath) = FILETYPE_FILE
 				buildMetaData = New JsonObject(LoadString(buildMetaPath))
-			End		
+			End
 			
 			If FileType(targetPath) = FILETYPE_DIR
 				If buildMetaData
@@ -107,14 +107,15 @@ Class Builder
 				buildMetaData = New JsonObject()
 			End
 			
-			Local targets:=JsonObject(buildMetaData.Get("targets"))
+			Local targets := JsonObject(buildMetaData.Get("targets"))
 			
 			If Not targets
 				targets = New JsonObject()
 				buildMetaData.Set("targets", targets)
 			End
 			
-			targets.SetString(tcc.target.name, tcc.target.version)			
+			targets.SetString(tcc.target.name, tcc.target.version)
+			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath
 			SaveString(buildMetaData.ToJson(), buildPath + "/build.meta.json")
 		End
 				
@@ -126,7 +127,6 @@ Class Builder
 		ElseIf FileType(targetPath) <> FILETYPE_DIR 'first build
 			cfgPath = tcc.target.abspath + "/template/CONFIG.MONKEY"
 			If FileType(cfgPath) = FILETYPE_FILE PreProcess cfgPath, "", True
-			
 		End
 		
 		app=ParseApp( tcc.opt_srcpath )
@@ -141,7 +141,7 @@ Class Builder
 		
 		Print "Translating..."
 		Local transbuf:=New StringStack
-		For Local file$=Eachin app.fileImports
+		For Local file:String = Eachin app.fileImports
 			If ExtractExt( file ).ToLower()=ENV_LANG
 				transbuf.Push LoadString( file )
 				transbuf.Push "~n"
@@ -161,8 +161,8 @@ Class Builder
 			If FileType( targetPath )<>FILETYPE_NONE Die "Failed to clean target dir"
 		Endif
 
-		If FileType( targetPath )=FILETYPE_NONE
-			If FileType( buildPath )=FILETYPE_NONE CreateDir buildPath
+		If FileType( targetPath ) = FILETYPE_NONE
+			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath
 			If FileType( buildPath )<>FILETYPE_DIR Die "Failed to create build dir: "+buildPath
 			If Not CopyDir(tcc.target.abspath + "/template", targetPath, True, False) Die "Failed to copy target dir"
 		Endif
