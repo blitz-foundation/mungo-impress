@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(quit);
     tray->setContextMenu(menu);
     connect(tray,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(onShowWindow(QSystemTrayIcon::ActivationReason)));
-    tray->showMessage(appTitle, "Started");
+    tray->showMessage(appTitle, "Successfully started!");
 }
 
 MainWindow::~MainWindow()
