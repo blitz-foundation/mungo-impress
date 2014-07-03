@@ -323,15 +323,17 @@ gulp.task('dist', environment.options.build === 'clean' ? ['default'] : [], func
     {
       forceDelete: false,
       whitelist: true,
-      filter: function(file) {
+      filter: function(file, path) {
         var found;
 
         if (file === 'gulpfile.js' || file === 'package.json' || file === 'bower.json' || file === 'settings.ini') {
           return false;
         } else if (file === 'node_modules' || file === 'bower_components' || file === 'closure') {
           return false;
-        } else if (file.indexOf('.') === 0 || file.indexOf('.build') > 0) {
+        } else if (file.indexOf('.') === 0) {
           return false;
+        } else if (file.indexOf('.build') > 0) {
+          return path.indexOf('html') >= 0;
         } else if (file.indexOf('buildconfig') === 0 || file.indexOf('config.develop') === 0) {
           return false;
         } else if ((file.indexOf('mserver') === 0 || file.indexOf('jentos') === 0) && file.match(/.+\.(pro\.user|user)/)) {
