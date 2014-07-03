@@ -1,6 +1,4 @@
-#include <QCoreApplication>
-#include <QTcpServer>
-
+#include <QProcess>
 #include "singleapplication.h"
 #include "mainwindow.h"
 
@@ -10,7 +8,19 @@ int main(int argc, char *argv[])
 
     if (app.isRunning())
     {
-        app.sendMessage(QString(argv[1]));
+        if (argc > 1)
+            app.sendMessage(QString(argv[1]));
+        return 0;
+    }
+    else if (argc > 1 && (argc < 3 || QString(argv[2]) != "--server"))
+    {
+        app.quit();
+
+        QStringList args;
+        args.append(QString(argv[1]));
+        args.append("--server");
+
+        QProcess::startDetached(QString(argv[0]), args);
         return 0;
     }
 
