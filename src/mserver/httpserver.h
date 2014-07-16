@@ -10,11 +10,13 @@
 class HttpServer : public QTcpServer
 {
 public:
-    HttpServer(const QString &documentRoot, QObject* parent = 0);
+    HttpServer(const QString &documentRoot, int port, QObject* parent = 0);
 
     const QString getMimeType(const QString &filename);
 
     QString documentRoot;
+
+    int port;
 
 protected:
     void incomingConnection(qintptr socketDescriptor);

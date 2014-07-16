@@ -1,7 +1,7 @@
 #include "httpserver.h"
 
-HttpServer::HttpServer(const QString &documentRoot, QObject* parent)
-    : QTcpServer(parent), documentRoot(documentRoot)
+HttpServer::HttpServer(const QString &documentRoot, int port, QObject* parent)
+    : QTcpServer(parent), documentRoot(documentRoot), port(port)
 {
 }
 
