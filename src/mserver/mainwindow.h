@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#define MUNGOSERVER_VERSION "0.1.0"
+#define MUNGOSERVER_VERSION "0.1.1"
 
 #include <QMainWindow>
 #include <QFileInfo>
