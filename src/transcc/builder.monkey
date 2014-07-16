@@ -58,6 +58,7 @@ Class Builder
 		SetConfigVar "TARGET",ENV_TARGET
 		SetConfigVar "CONFIG",ENV_CONFIG
 		SetConfigVar "SAFEMODE",ENV_SAFEMODE
+		SetConfigVar "MUNGO","1"
 		
 		Local buildPath:String
 		
