@@ -196,7 +196,7 @@ Class TransCC
 			EnumTargets d
 		Next
 		
-		If args.Length<2
+		If Not opt_target Or Not opt_srcpath
 			Local valid:=""
 			For Local it:=Eachin _targets
 				valid+=" "+it.Key.Replace( " ","_" )
@@ -252,9 +252,15 @@ Class TransCC
 	
 	Method ParseArgs:Void()
 	
-		If args.Length>1 opt_srcpath=StripQuotes( args[args.Length-1].Trim() )
+		If args.Length > 1 opt_srcpath = StripQuotes( args[args.Length-1].Trim() )
+		Local argsLength:Int = args.Length-1
+		
+		If opt_srcpath.StartsWith("-") And ExtractExt(opt_srcpath) <> "monkey"
+			opt_srcpath = ""
+			argsLength += 1
+		End If
 	
-		For Local i:=1 Until args.Length-1
+		For Local i := 1 Until argsLength
 		
 			Local arg:=args[i].Trim(),rhs:=""
 			Local j:=arg.Find( "=" )
@@ -317,11 +323,12 @@ Class TransCC
 	Method LoadConfig:Void()
 	
 		Local cfgpath:=monkeydir+"/bin/"
-		If opt_cfgfile 
+		If opt_cfgfile
 			cfgpath+=opt_cfgfile
 		Else
-			cfgpath+="config."+HostOS+".txt"
+			cfgpath += "config."+HostOS+".txt"
 		Endif
+		
 		If FileType( cfgpath )<>FILETYPE_FILE Die "Failed to open config file"
 	
 		Local cfg:=LoadString( cfgpath )
