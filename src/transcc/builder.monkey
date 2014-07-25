@@ -70,9 +70,11 @@ Class Builder
 		
 		Local targetPath:= buildPath + "/" + tcc.target.dir	'ENV_TARGET
 		
+		Local buildMetaPath:String
+		Local buildMetaData:JsonObject = Null
+		
 		If Not tcc.opt_builddir
-			Local buildMetaPath:String = buildPath + "/build.meta.json"
-			Local buildMetaData:JsonObject = Null
+			buildMetaPath = buildPath + "/build.meta.json"
 			
 			If FileType(buildMetaPath) = FILETYPE_FILE
 				buildMetaData = New JsonObject(LoadString(buildMetaPath))
@@ -116,8 +118,6 @@ Class Builder
 			End
 			
 			targets.SetString(tcc.target.name, tcc.target.version)
-			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath
-			SaveString(buildMetaData.ToJson(), buildPath + "/build.meta.json")
 		End
 				
 		Local cfgPath:= targetPath + "/CONFIG.MONKEY"
@@ -189,7 +189,8 @@ Class Builder
 		ChangeDir targetPath
 		Self.MakeTarget
 		ChangeDir cd
-
+		
+		If buildMetaData Then SaveString(buildMetaData.ToJson(), buildPath + "/build.meta.json")
 	End
 	
 	Field tcc:TransCC
