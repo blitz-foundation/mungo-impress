@@ -1,4 +1,4 @@
-
+﻿
 ' stdcpp app 'transcc' - driver program for the Monkey translator.
 '
 ' Placed into the public domain 24/02/2011.
@@ -7,7 +7,7 @@
 Import trans
 Import builders
 
-Const VERSION:= "1.0.0-rc.1"
+Const VERSION:= "1.0.0-rc.2"
 
 Function Main()
 	Local tcc:=New TransCC

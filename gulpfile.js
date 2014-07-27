@@ -1,4 +1,4 @@
-var VERSION = '1.0.0-rc.1';
+var VERSION = '1.0.0-rc.2';
 var ENVIRONMENT = 'release';
 
 var gulp = require('gulp');
