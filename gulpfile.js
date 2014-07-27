@@ -326,7 +326,7 @@ gulp.task('dist', environment.options.build === 'clean' ? ['default'] : [], func
       filter: function(file, path) {
         var found;
 
-        if (file === 'gulpfile.js' || file === 'package.json' || file === 'bower.json' || file === 'settings.ini') {
+        if (file === 'gulpfile.js' || file === 'package.json' || file === 'bower.json' || file === 'settings.ini' || file === 'junglembc2.exe') {
           return false;
         } else if (file === 'node_modules' || file === 'bower_components' || file === 'closure' || file === 'harmony') {
           return false;
