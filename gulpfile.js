@@ -328,7 +328,7 @@ gulp.task('dist', environment.options.build === 'clean' ? ['default'] : [], func
 
         if (file === 'gulpfile.js' || file === 'package.json' || file === 'bower.json' || file === 'settings.ini') {
           return false;
-        } else if (file === 'node_modules' || file === 'bower_components' || file === 'closure') {
+        } else if (file === 'node_modules' || file === 'bower_components' || file === 'closure' || file === 'harmony') {
           return false;
         } else if (file.indexOf('.') === 0) {
           return false;
