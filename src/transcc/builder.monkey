@@ -163,11 +163,13 @@ Class Builder
 		Endif
 
 		If FileType( targetPath ) = FILETYPE_NONE
-			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath
+			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath			
 			If FileType( buildPath )<>FILETYPE_DIR Die "Failed to create build dir: "+buildPath
 			If Not CopyDir(tcc.target.abspath + "/template", targetPath, True, False) Die "Failed to copy target dir"
 		Endif
+		
 		If FileType( targetPath )<>FILETYPE_DIR Die "Failed to create target dir: "+targetPath
+		If buildMetaData Then SaveString(buildMetaData.ToJson(), buildPath + "/build.meta.json")
 		
 		TEXT_FILES=GetConfigVar( "TEXT_FILES" )
 		IMAGE_FILES=GetConfigVar( "IMAGE_FILES" )
@@ -189,8 +191,6 @@ Class Builder
 		ChangeDir targetPath
 		Self.MakeTarget
 		ChangeDir cd
-		
-		If buildMetaData Then SaveString(buildMetaData.ToJson(), buildPath + "/build.meta.json")
 	End
 	
 	Field tcc:TransCC
