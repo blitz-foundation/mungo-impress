@@ -62,6 +62,8 @@ Class PsmBuilder Extends Builder
 				    cont.Push "    <Content Include=~q"+t+"~q>"
 					cont.Push "      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>"
 					cont.Push "    </Content>"
+			Else If MatchPath ( r,SHADER_FILES )
+					cont.Push "    <ShaderProgram Include=~q"+t+"~q />"
 			Endif
 
 		Next

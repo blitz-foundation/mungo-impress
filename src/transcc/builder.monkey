@@ -176,12 +176,14 @@ Class Builder
 		SOUND_FILES=GetConfigVar( "SOUND_FILES" )
 		MUSIC_FILES=GetConfigVar( "MUSIC_FILES" )
 		BINARY_FILES=GetConfigVar( "BINARY_FILES" )
+		SHADER_FILES=GetConfigVar( "SHADER_FILES" )
 		
 		DATA_FILES=TEXT_FILES
 		If IMAGE_FILES DATA_FILES+="|"+IMAGE_FILES
 		If SOUND_FILES DATA_FILES+="|"+SOUND_FILES
 		If MUSIC_FILES DATA_FILES+="|"+MUSIC_FILES
 		If BINARY_FILES DATA_FILES+="|"+BINARY_FILES
+		If SHADER_FILES DATA_FILES+="|"+SHADER_FILES
 		DATA_FILES=DATA_FILES.Replace( ";","|" )
 	
 		syncData=GetConfigVar( "FAST_SYNC_PROJECT_DATA" )="1"
@@ -205,6 +207,7 @@ Class Builder
 	Field SOUND_FILES$
 	Field MUSIC_FILES$
 	Field BINARY_FILES$
+	Field SHADER_FILES$
 	
 	Method Execute:Bool( cmd:String,failHard:Bool=True )
 		Return tcc.Execute( cmd,failHard )
