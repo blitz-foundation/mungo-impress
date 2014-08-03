@@ -34,14 +34,14 @@ if (config.path.monkey === '') {
 
 var transcc = config.path.monkey + '/bin/transcc_' + host;
 var qmake = config.path.qt + '/bin/qmake';
-var make = config.path.mingw + '/bin/mingw32-make';
+var make = 'make';
 var bin = './bin';
 var makedocs = bin + '/makedocs_' + host;
 
 if (process.platform == 'win32') {
   transcc += '.exe';
   qmake += '.exe';
-  make += '.exe';
+  make = config.path.mingw + '/bin/mingw32-make.exe';
   makedocs += '.exe';
 }
 
