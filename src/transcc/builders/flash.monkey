@@ -70,7 +70,7 @@ Class FlashBuilder Extends Builder
 		For Local lib:=Eachin GetConfigVar( "LIBS" ).Split( ";" )
 			Select ExtractExt( lib )
 			Case "swc"
-				cc_libs+=" -library-path="+lib
+				cc_libs+=" -library-path=~q"+lib+"~q"
 			End
 		Next
 		
