@@ -198,15 +198,15 @@ Class Html5Builder Extends Builder
 			SaveString main, "main.js"
 		EndIf
 		
-		Local template:String = LoadString("MonkeyGame.html")
+		Local template:String = LoadString("templates/default.html")
 		
 		If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"
 			Local preloader:String = LoadString("preloader.js")
 			
-			Local meta:StringStack = New StringStack()
-			meta.Push("MAINJS_FILESIZE:" + FileSize("main.js"))
+			Local preloaderMeta:StringStack = New StringStack()
+			preloaderMeta.Push("MAINJS_FILESIZE:" + FileSize("main.js"))
 			
-			preloader = ReplaceBlock(preloader, "METADATA", "var PRELOADER_METADATA={" + meta.Join(",") + "};")
+			preloader = ReplaceBlock(preloader, "METADATA", "var PRELOADER_METADATA={" + preloaderMeta.Join(",") + "};")
 			
 			SaveString(preloader, "preloader.js")
 			
@@ -215,7 +215,7 @@ Class Html5Builder Extends Builder
 			template = ReplaceBlock(template, "BOOTSTRAP", "<script src=~qmain.js~q></script>", "~n<!--")
 		EndIf
 		
-		
+		template=ReplaceEnv(template)
 		SaveString(template, "MonkeyGame.html")
 		
 		If tcc.opt_run
