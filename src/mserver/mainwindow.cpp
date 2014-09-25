@@ -60,11 +60,13 @@ void MainWindow::createHttpServer(QString filename)
 
     if (!httpServers.contains(f.absolutePath()))
     {
-        port = httpServers.empty() ? 8080 : port + 1;
+        port = httpServers.empty() ? 8080 : port + 10;
         httpServer = new HttpServer(f.absolutePath(), port, this);
 
-        while(!httpServer->listen(QHostAddress::LocalHost, port) && port < 8180)
-            port++;
+        while(!httpServer->listen(QHostAddress::LocalHost, port) && port < 9080) {
+            port+=10;
+            httpServer->port = port;
+        }
 
         if (httpServer->isListening())
         {
