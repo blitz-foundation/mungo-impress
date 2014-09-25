@@ -34,14 +34,14 @@ if (config.path.monkey === '') {
 
 var transcc = config.path.monkey + '/bin/transcc_' + host;
 var qmake = config.path.qt + '/bin/qmake';
-var make = config.path.mingw + '/bin/mingw32-make';
+var make = 'make';
 var bin = './bin';
 var makedocs = bin + '/makedocs_' + host;
 
 if (process.platform == 'win32') {
   transcc += '.exe';
   qmake += '.exe';
-  make += '.exe';
+  make = config.path.mingw + '/bin/mingw32-make.exe';
   makedocs += '.exe';
 }
 
@@ -114,7 +114,7 @@ var buildQtProject = function(projectName, projectDestName) {
   }
 };
 
-var buildMonkeyProject = function(projectName, projectDestName, target) {
+var buildMonkeyProject = function(projectName, projectDestName, target, extraTransArgs) {
   var src = './src/' + projectName;
   var buildDir = path.resolve(src, '.build');
 
@@ -126,6 +126,10 @@ var buildMonkeyProject = function(projectName, projectDestName, target) {
 
   if (target) {
     transArgs = environment.transcc.args.concat(['-target=' + target]);
+  }
+
+  if (extraTransArgs) {
+    transArgs = transArgs.concat(extraTransArgs);
   }
 
   return function(callback) {
@@ -156,7 +160,9 @@ var buildMonkeyProject = function(projectName, projectDestName, target) {
 
         var tmp = path.resolve(src, '.build/cpptool', origin);
 
-        if (!fs.existsSync(tmp)) {
+        if (target == 'Java_Tool') {
+          tmp = path.resolve(src, '.build/javatool', 'main.jar');
+        } else if (!fs.existsSync(tmp)) {
           tmp = path.resolve(src, '.build/glfw');
 
           if (fs.existsSync(tmp)) {
@@ -365,6 +371,7 @@ gulp.task('dist', environment.options.build === 'clean' ? ['default'] : [], func
 });
 
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
+gulp.task('transcc_java', buildMonkeyProject('transcc', 'transcc_java.jar', 'Java_Tool', ['+JAVATOOL_STRING_PARSE_STYLE=cpp']));
 gulp.task('makedocs', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
 gulp.task('mungo', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo', 'Desktop_Game'));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));

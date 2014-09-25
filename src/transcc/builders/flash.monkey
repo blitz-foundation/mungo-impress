@@ -65,10 +65,18 @@ Class FlashBuilder Extends Builder
 		main=ReplaceBlock( main,"CONFIG",Config() )
 		
 		SaveString main,"MonkeyGame.as"
+
+		Local cc_libs:=""
+		For Local lib:=Eachin GetConfigVar( "LIBS" ).Split( ";" )
+			Select ExtractExt( lib )
+			Case "swc"
+				cc_libs+=" -library-path=~q"+lib+"~q"
+			End
+		Next
 		
 		If tcc.opt_build
 		
-			Local cc_opts:=" -static-link-runtime-shared-libraries=true"
+			Local cc_opts:=" -static-link-runtime-shared-libraries=true"+cc_libs
 			
 			If ENV_CONFIG="debug" cc_opts+=" -debug=true"
 
