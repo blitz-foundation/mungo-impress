@@ -209,14 +209,21 @@ gulp.task('dependencies', function(callback) {
         wrench.rmdirSyncRecursive(dest);
       }
 
-      wrench.copyDirRecursive(
+      wrench.copyDirSyncRecursive(
         path.resolve(config.path.qt, item),
         dest,
-        {forceDelete: false},
-        callback
+        {
+          forceDelete: false,
+          whitelist: true,
+          filter: function (file) {
+            return file.indexOf('d.dll') < 0;
+          }
+        }
       );
     }
   });
+
+  callback();
 });
 
 gulp.task('docs', environment.options.build === 'clean' ? ['templates', 'transcc', 'makedocs'] : [],
