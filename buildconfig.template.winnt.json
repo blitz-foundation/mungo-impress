@@ -24,7 +24,8 @@
            "bin/icuuc52.dll", "bin/Qt5PrintSupport.dll", "bin/libstdc++-6.dll", "bin/Qt5Qml.dll", "bin/Qt5Quick.dll",
            "bin/libgcc_s_dw2-1.dll", "bin/libwinpthread-1.dll"],
 
-          "plugins/platforms"
+          "plugins/platforms",
+          "plugins/imageformats"
         ]
       }
     }
