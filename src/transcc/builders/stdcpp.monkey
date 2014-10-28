@@ -45,6 +45,15 @@ Class StdcppBuilder Extends Builder
 
 		SaveString main,"main.cpp"
 		
+		Local icon:=GetConfigVar("STDCPP_APP_ICON")
+		If icon
+			If HostOS="winnt"
+				Local resource:=LoadString( "resource.rc" )
+				resource=ReplaceBlock( resource,"RESOURCE","APP_ICON ICON ~q" + icon + "~q")
+				SaveString resource,"resource.rc"
+			End
+		End
+		
 		If tcc.opt_build
 
 			Local out:="main_"+HostOS
@@ -71,13 +80,19 @@ Class StdcppBuilder Extends Builder
 				OPTS+=" -O3 -DNDEBUG"
 			End
 			
+			Local ccobjs:=""
+			
+			If HostOS="winnt" And icon Then
+				If Execute("windres resource.rc -O coff -o resource.res", False) ccobjs += " resource.res"
+			End
+			
 			Local cc_opts:=GetConfigVar( "CC_OPTS" )
 			If cc_opts OPTS+=" "+cc_opts.Replace( ";"," " )
 			
 			Local cc_libs:=GetConfigVar( "CC_LIBS" )
 			If cc_libs LIBS+=" "+cc_libs.Replace( ";"," " )
 			
-			Execute "g++"+OPTS+" -o "+out+" main.cpp"+LIBS
+			Execute "g++"+OPTS+" -o "+out+" main.cpp" + ccobjs +LIBS
 			
 			If tcc.opt_run
 				Execute "~q"+RealPath( out )+"~q"
