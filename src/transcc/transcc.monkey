@@ -411,7 +411,7 @@ Class TransCC
 				FLASH_PLAYER=rhs
 			Case "CLOSURE_COMPILER"
 				CLOSURE_COMPILER = rhs
-			Case "EXTENDS"
+			Case "INCLUDE"
 				LoadConfig(path)
 			Default 
 				Print "Trans: ignoring unrecognized config var: "+lhs

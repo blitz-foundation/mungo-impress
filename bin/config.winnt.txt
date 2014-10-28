@@ -1,4 +1,4 @@
-EXTENDS="config.develop.winnt.txt"
+INCLUDE="config.develop.winnt.txt"
 
 '--------------------
 'Monkey modules path
