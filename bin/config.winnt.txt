@@ -1,3 +1,4 @@
+EXTENDS="config.develop.winnt.txt"
 
 '--------------------
 'Monkey modules path
