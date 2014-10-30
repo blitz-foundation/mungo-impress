@@ -380,7 +380,7 @@ gulp.task('dist', environment.options.build === 'clean' ? ['default'] : [], func
 gulp.task('transcc', buildMonkeyProject('transcc', 'transcc_' + host));
 gulp.task('transcc_java', buildMonkeyProject('transcc', 'transcc_java.jar', 'Java_Tool', ['+JAVATOOL_STRING_PARSE_STYLE=cpp']));
 gulp.task('makedocs', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('makedocs', 'makedocs_' + host));
-gulp.task('mungo', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo', 'Desktop_Game'));
+gulp.task('mungo', environment.options.build === 'clean' ? ['transcc'] : [], buildMonkeyProject('mungo', '../mungo'));
 gulp.task('mserver', buildQtProject('mserver', 'mserver_' + host));
 gulp.task('jentos', buildQtProject('jentos'));
 

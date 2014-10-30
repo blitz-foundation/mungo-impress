@@ -214,7 +214,7 @@ Class TransCC
 	End
 	
 	Method EnumBuilders:Void()
-		For Local it:=Eachin Builders( Self )
+		For Local it:=Eachin Builders.Load( Self )
 			If it.Value.IsValid() _builders.Set it.Key,it.Value
 		Next
 	End
@@ -320,16 +320,28 @@ Class TransCC
 		
 	End
 
-	Method LoadConfig:Void()
+	Method LoadConfig:Void(cfgpath:String = "")
 	
-		Local cfgpath:=monkeydir+"/bin/"
-		If opt_cfgfile
-			cfgpath+=opt_cfgfile
+		Local cfgprefix:=monkeydir+"/bin/"
+		Local softFail:=False
+		
+		If Not cfgpath
+			cfgpath = cfgprefix
+		
+			If opt_cfgfile
+				cfgpath+=opt_cfgfile
+			Else
+				cfgpath+="config."+HostOS+".txt"
+			Endif
 		Else
-			cfgpath += "config."+HostOS+".txt"
+			cfgpath=cfgprefix + cfgpath
+			softFail=True
 		Endif
 		
-		If FileType( cfgpath )<>FILETYPE_FILE Die "Failed to open config file"
+		If FileType( cfgpath )<>FILETYPE_FILE
+			If Not softFail Die "Failed to open config file: " + cfgpath
+			Return
+		Endif
 	
 		Local cfg:=LoadString( cfgpath )
 			
@@ -399,6 +411,8 @@ Class TransCC
 				FLASH_PLAYER=rhs
 			Case "CLOSURE_COMPILER"
 				CLOSURE_COMPILER = rhs
+			Case "INCLUDE"
+				LoadConfig(path)
 			Default 
 				Print "Trans: ignoring unrecognized config var: "+lhs
 			End

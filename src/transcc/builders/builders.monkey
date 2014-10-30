@@ -13,20 +13,52 @@ Import winrt
 Import xna
 Import javatool
 
-Function Builders:StringMap<Builder>( tcc:TransCC )
-	Local builders:=New StringMap<Builder>
-
-	builders.Set "android",New AndroidBuilder( tcc )
-	builders.Set "android_ndk",New AndroidNdkBuilder( tcc )
-	builders.Set "glfw",New GlfwBuilder( tcc )
-	builders.Set "html5",New Html5Builder( tcc )
-	builders.Set "ios",New IosBuilder( tcc )
-	builders.Set "flash",New FlashBuilder( tcc )
-	builders.Set "psm",New PsmBuilder( tcc )
-	builders.Set "stdcpp",New StdcppBuilder( tcc )
-	builders.Set "winrt",New WinrtBuilder( tcc )
-	builders.Set "xna",New XnaBuilder( tcc )
-	builders.Set "javatool",New JavaToolBuilder( tcc )
+Class Builders
 	
-	Return builders
-End
+	Function Add(id:String, builder:Builder)
+		If Not Builders Init()
+		Builders.Insert id,builder
+	End
+	
+	Function Replace(id:String, builder:Builder)
+		If Not Builders Init()
+		Builders.Set id,builder
+	End
+	
+	Function Clear:Void()
+		If Not Builders Init(True)
+		Builders.Clear()		
+	End Function
+	
+	Function Load:StringMap<Builder>(tcc:TransCC)
+		If Not Builders Init()
+	
+		For Local b:=EachIn Builders.Values()
+			b.tcc = tcc
+		Next
+		
+		Return Builders
+	End
+	
+Private
+
+	Global Builders:StringMap<Builder>
+	
+	Function Init(empty:Bool=False)
+		Builders=New StringMap<Builder>
+		If empty Return
+
+		Builders.Set "android",New AndroidBuilder
+		Builders.Set "android_ndk",New AndroidNdkBuilder
+		Builders.Set "glfw",New GlfwBuilder
+		Builders.Set "html5",New Html5Builder
+		Builders.Set "ios",New IosBuilder
+		Builders.Set "flash",New FlashBuilder
+		Builders.Set "psm",New PsmBuilder
+		Builders.Set "stdcpp",New StdcppBuilder
+		Builders.Set "winrt",New WinrtBuilder
+		Builders.Set "xna",New XnaBuilder
+		Builders.Set "javatool",New JavaToolBuilder
+	End
+
+End Class

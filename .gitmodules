@@ -79,3 +79,6 @@
 [submodule "targets/javatool"]
 	path = targets/javatool
 	url = http://source.mungo.io/targets/javatool.git
+[submodule "targets/glfw3"]
+	path = targets/glfw3
+	url = http://source.mungo.io/targets/glfw3.git

@@ -45,6 +45,15 @@ Class StdcppBuilder Extends Builder
 
 		SaveString main,"main.cpp"
 		
+		Local icon:=GetConfigVar("STDCPP_APP_ICON")
+		If icon
+			If HostOS="winnt"
+				Local resource:=LoadString( "resource.rc" )
+				resource=ReplaceBlock( resource,"RESOURCE","APP_ICON ICON ~q" + icon + "~q")
+				SaveString resource,"resource.rc"
+			End
+		End
+		
 		If tcc.opt_build
 
 			Local out:="main_"+HostOS
@@ -58,14 +67,23 @@ Class StdcppBuilder Extends Builder
 				LIBS+=" -lwinmm -lws2_32"
 			Case "macos"
 				OPTS+=" -Wno-parentheses -Wno-dangling-else"
-				OPTS+=" -arch i386 -read_only_relocs suppress -mmacosx-version-min=10.3"
+				OPTS+=" -mmacosx-version-min=10.6"
 			Case "linux"
+				OPTS+=" -Wno-unused-result"
 				LIBS+=" -lpthread"
 			End
 			
 			Select ENV_CONFIG
+			Case "debug"
+				OPTS+=" -O0"
 			Case "release"
 				OPTS+=" -O3 -DNDEBUG"
+			End
+			
+			Local ccobjs:=""
+			
+			If HostOS="winnt" And icon Then
+				If Execute("windres resource.rc -O coff -o resource.res", False) ccobjs += " resource.res"
 			End
 			
 			Local cc_opts:=GetConfigVar( "CC_OPTS" )
@@ -74,7 +92,7 @@ Class StdcppBuilder Extends Builder
 			Local cc_libs:=GetConfigVar( "CC_LIBS" )
 			If cc_libs LIBS+=" "+cc_libs.Replace( ";"," " )
 			
-			Execute "g++"+OPTS+" -o "+out+" main.cpp"+LIBS
+			Execute "g++"+OPTS+" -o "+out+" main.cpp" + ccobjs +LIBS
 			
 			If tcc.opt_run
 				Execute "~q"+RealPath( out )+"~q"
