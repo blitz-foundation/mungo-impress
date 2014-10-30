@@ -214,7 +214,7 @@ Class TransCC
 	End
 	
 	Method EnumBuilders:Void()
-		For Local it:=Eachin Builders( Self )
+		For Local it:=Eachin Builders.Load( Self )
 			If it.Value.IsValid() _builders.Set it.Key,it.Value
 		Next
 	End
