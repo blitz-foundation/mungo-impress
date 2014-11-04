@@ -152,7 +152,7 @@ Class TransCC
 	Field opt_targspath:String
 	Field opt_builddir:String
 	
-	'config file
+	'config file: deprecated. See paths, tools
 	Field ANDROID_PATH:String
 	Field ANDROID_NDK_PATH:String
 	Field ANT_PATH:String
@@ -170,6 +170,8 @@ Class TransCC
 	Field monkeydir:String
 	Field target:Target
 	
+	Field _requirements:=New StringMap<BuilderRequirement>
+	
 	Field _builders:=New StringMap<Builder>
 	Field _targets:=New StringMap<Target>
 	
@@ -186,9 +188,9 @@ Class TransCC
 	
 		ParseArgs
 		
-		LoadConfig
-		
-		EnumBuilders
+		LoadBuilders
+		LoadConfig		
+		ValidateBuilders
 		
 		Local dirs:String[] = opt_targspath.Split(";")
 		
@@ -213,11 +215,25 @@ Class TransCC
 		target.builder.Make
 	End
 	
-	Method EnumBuilders:Void()
-		For Local it:=Eachin Builders.Load( Self )
-			If it.Value.IsValid() _builders.Set it.Key,it.Value
+	Method LoadBuilders:Void()
+		For Local it:=Eachin Builders.Load( Self )			
+			_builders.Set it.Key,it.Value
 		Next
 	End
+	
+	Method ValidateBuilders:Void()
+		For Local it:=Eachin _builders
+			If Not it.Value.IsValid() _builders.Remove it.Key
+		Next
+	End
+	
+	Method AddRequirement:Void(requirement:BuilderRequirement)
+		_requirements.Set requirement.key, requirement
+	End
+	
+	Method GetRequirement:BuilderRequirement(key:String)
+		Return _requirements.ValueForKey(key)
+	End Method
 	
 	Method EnumTargets:Void( dir:String )
 		
@@ -414,7 +430,18 @@ Class TransCC
 			Case "INCLUDE"
 				LoadConfig(path)
 			Default 
-				Print "Trans: ignoring unrecognized config var: "+lhs
+				If (_requirements.Contains(lhs))
+					Local requirement:=_requirements.Get(lhs)
+					
+					Select requirement.type
+						Case BuilderRequirement.PATH
+							requirement.value = path
+						Case BuilderRequirement.TOOL
+							requirement.value = rhs
+					End Select
+				Else
+					Print "Trans: ignoring unrecognized config var: "+lhs
+				EndIf
 			End
 	
 		Next

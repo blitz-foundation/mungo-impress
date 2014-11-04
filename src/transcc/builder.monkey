@@ -5,7 +5,12 @@ Import brl.json
 
 Class Builder
 
+	'deprecated
 	Method New( tcc:TransCC )
+		Self.tcc=tcc
+	End
+	
+	Method Load:Void( tcc:TransCC )
 		Self.tcc=tcc
 	End
 	
@@ -314,3 +319,23 @@ Class Builder
 	End
 	
 End
+
+Class BuilderRequirement
+	
+	Const PATH:Int = 0
+	Const TOOL:Int = 1
+
+	Field key:String
+	Field value:String
+	Field type:Int
+	
+	Method New(key:String, type:Int = PATH)
+		Self.key = key
+		Self.type = type
+	End Method
+	
+	Method ToString:String()
+		Return value
+	End Method
+
+End Class
