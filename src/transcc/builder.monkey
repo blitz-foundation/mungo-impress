@@ -128,11 +128,11 @@ Class Builder
 		Local cfgPath:= targetPath + "/CONFIG.MONKEY"
 		
 		If FileType(cfgPath) = FILETYPE_FILE
-			PreProcess cfgPath, "", True
+			PreProcess cfgPath, Null, True
 			
 		ElseIf FileType(targetPath) <> FILETYPE_DIR 'first build
 			cfgPath = tcc.target.abspath + "/template/CONFIG.MONKEY"
-			If FileType(cfgPath) = FILETYPE_FILE PreProcess cfgPath, "", True
+			If FileType(cfgPath) = FILETYPE_FILE PreProcess cfgPath, Null, True
 		End
 		
 		app=ParseApp( tcc.opt_srcpath )
