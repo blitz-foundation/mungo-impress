@@ -5,7 +5,12 @@ Import brl.json
 
 Class Builder
 
+	'deprecated
 	Method New( tcc:TransCC )
+		Self.tcc=tcc
+	End
+	
+	Method Load:Void( tcc:TransCC )
 		Self.tcc=tcc
 	End
 	
@@ -123,11 +128,11 @@ Class Builder
 		Local cfgPath:= targetPath + "/CONFIG.MONKEY"
 		
 		If FileType(cfgPath) = FILETYPE_FILE
-			PreProcess cfgPath, "", True
+			PreProcess cfgPath, Null, True
 			
 		ElseIf FileType(targetPath) <> FILETYPE_DIR 'first build
 			cfgPath = tcc.target.abspath + "/template/CONFIG.MONKEY"
-			If FileType(cfgPath) = FILETYPE_FILE PreProcess cfgPath, "", True
+			If FileType(cfgPath) = FILETYPE_FILE PreProcess cfgPath, Null, True
 		End
 		
 		app=ParseApp( tcc.opt_srcpath )
@@ -317,3 +322,23 @@ Class Builder
 	End
 	
 End
+
+Class BuilderRequirement
+	
+	Const PATH:Int = 0
+	Const TOOL:Int = 1
+
+	Field key:String
+	Field value:String
+	Field type:Int
+	
+	Method New(key:String, type:Int = PATH)
+		Self.key = key
+		Self.type = type
+	End Method
+	
+	Method ToString:String()
+		Return value
+	End Method
+
+End Class

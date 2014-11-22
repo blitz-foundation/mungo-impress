@@ -88,12 +88,19 @@ var buildQtProject = function(projectName, projectDestName) {
             if (process.platform == 'win32') {
               origin += '.exe';
               dest += '.exe';
+            } else if (process.platform == 'darwin') {
+              origin += '.app';
+              dest += '.app';
             }
 
             var tmp = path.resolve(buildDir, 'release', origin);
 
             if (!fs.existsSync(tmp)) {
               tmp = path.resolve(buildDir, 'debug', origin);
+            }
+
+            if (!fs.existsSync(tmp)) {
+              tmp = path.resolve(buildDir, origin);
             }
 
             if (!fs.existsSync(tmp)) {

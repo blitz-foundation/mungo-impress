@@ -34,7 +34,7 @@ Class Builders
 		If Not Builders Init()
 	
 		For Local b:=EachIn Builders.Values()
-			b.tcc = tcc
+			b.Load tcc
 		Next
 		
 		Return Builders
