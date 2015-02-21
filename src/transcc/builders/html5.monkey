@@ -95,10 +95,34 @@ Class Html5Builder Extends Builder
 	Method Config:String()
 		Local config:=New StringStack
 		For Local kv:=Eachin GetConfigVars()
-			config.Push "CFG_"+kv.Key+"="+Enquote( kv.Value,"js" )+";"
+			config.Push "var CFG_"+kv.Key+"="+Enquote( kv.Value,"js" )+";"
 		Next
 		Return config.Join( "~n" )
 	End
+	
+	Method Exports:String()
+		Local exports:=New StringStack
+		
+		'two empty lines just for pretty
+		exports.Push ""
+		exports.Push ""
+		
+		exports.Push "window['bbMain']=bbMain;"
+		exports.Push "window['bbInit']=bbInit;"
+		
+		exports.Push "window['BBMonkeyGame']=BBMonkeyGame;"
+		exports.Push "BBMonkeyGame['Main']=BBMonkeyGame.Main;"
+		
+		If GetConfigVar("OPENGL_GLES20_ENABLED") = "1" Or GetConfigVar("HTML5_WEBGL_ENABLED") Then
+			exports.Push "window['gl']=window.gl;"
+		End If
+		
+		If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"	
+			exports.Push "window['CFG_HTML5_PRELOADER_ENABLED']=CFG_HTML5_PRELOADER_ENABLED;"			
+		End If
+		
+		Return exports.Join( "~n" )
+	End Method
 	
 	Method MetaData:String()
 		Local meta:=New StringStack
@@ -164,7 +188,7 @@ Class Html5Builder Extends Builder
 
 		CreateDataDir "data"
 
-		Local meta:="var META_DATA=~q"+MetaData()+"~q;~n"
+		Local meta:="window['META_DATA']=~q"+MetaData()+"~q;~n"
 		
 		If ENV_CONFIG = "release" And GetConfigVar("HTML5_OPTIMIZE_OUTPUT") = "1" And ExtractExt(tcc.CLOSURE_COMPILER)[ .. - 1] = "jar"
 			Local main:= LoadString("main.uncompressed.js")
@@ -173,14 +197,14 @@ Class Html5Builder Extends Builder
 				main = LoadString("main.js")
 			End If
 			
-			main = ReplaceBlock(main, "TRANSCODE", transCode)
+			main = ReplaceBlock(main, "TRANSCODE", transCode + Exports())
 			main = ReplaceBlock(main, "METADATA", meta)
 			main = ReplaceBlock(main, "CONFIG", Config())
 			
 			SaveString main, "main.uncompressed.js"
 		
 			Print "Optimize output..."
-			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level SIMPLE_OPTIMIZATIONS --warning_level QUIET --js main.uncompressed.js --js_output_file main.js", False
+			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level ADVANCED_OPTIMIZATIONS --warning_level QUIET --js main.uncompressed.js --js_output_file main.js", False
 		Else
 			Local main:String
 		
