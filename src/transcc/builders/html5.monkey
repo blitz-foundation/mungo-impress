@@ -15,6 +15,7 @@ Function GetInfo_PNG:Int( path:String )
 		Local n:=f.Read( data,0,24 )
 		f.Close
 		If n=24 And data.PeekByte(1)="P"[0] And data.PeekByte(2)="N"[0] And data.PeekByte(3)="G"[0]
+			'note:TODO"IHDR"
 			Info_Width=(data.PeekByte(16)&255) Shl 24 | (data.PeekByte(17)&255) Shl 16 | (data.PeekByte(18)&255) Shl 8 | (data.PeekByte(19)&255)
 			Info_Height=(data.PeekByte(20)&255) Shl 24 | (data.PeekByte(21)&255) Shl 16 | (data.PeekByte(22)&255) Shl 8 | (data.PeekByte(23)&255)
 			Return 0

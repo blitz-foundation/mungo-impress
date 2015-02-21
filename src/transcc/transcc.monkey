@@ -7,7 +7,7 @@
 Import trans
 Import builders
 
-Const VERSION:= "2.0.0-pre.2"
+Const VERSION:= "2.0.0-pre.5"
 
 Function Main()
 	Local tcc:=New TransCC
