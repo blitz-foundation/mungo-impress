@@ -202,9 +202,15 @@ Class Html5Builder Extends Builder
 			main = ReplaceBlock(main, "CONFIG", Config())
 			
 			SaveString main, "main.uncompressed.js"
+			
+			Local optimizationLevel:=GetConfigVar("HTML5_OPTIMIZATION_LEVEL")
+			
+			If Not optimizationLevel
+				optimizationLevel = "simple"
+			End If
 		
 			Print "Optimize output..."
-			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level ADVANCED_OPTIMIZATIONS --warning_level QUIET --js main.uncompressed.js --js_output_file main.js", False
+			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --warning_level QUIET --js main.uncompressed.js --js_output_file main.js", False
 		Else
 			Local main:String
 		
