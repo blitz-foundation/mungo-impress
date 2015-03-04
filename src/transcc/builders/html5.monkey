@@ -114,10 +114,6 @@ Class Html5Builder Extends Builder
 		exports.Push "window['BBMonkeyGame']=BBMonkeyGame;"
 		exports.Push "BBMonkeyGame['Main']=BBMonkeyGame.Main;"
 		
-		If GetConfigVar("OPENGL_GLES20_ENABLED") = "1" Or GetConfigVar("HTML5_WEBGL_ENABLED") Then
-			exports.Push "window['gl']=window.gl;"
-		End If
-		
 		If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"	
 			exports.Push "window['CFG_HTML5_PRELOADER_ENABLED']=CFG_HTML5_PRELOADER_ENABLED;"			
 		End If
