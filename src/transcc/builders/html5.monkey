@@ -115,7 +115,11 @@ Class Html5Builder Extends Builder
 		exports.Push "BBMonkeyGame['Main']=BBMonkeyGame.Main;"
 		
 		If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"	
-			exports.Push "window['CFG_HTML5_PRELOADER_ENABLED']=CFG_HTML5_PRELOADER_ENABLED;"			
+			exports.Push "window['CFG_HTML5_PRELOADER_ENABLED']=CFG_HTML5_PRELOADER_ENABLED;"
+		End If			
+		
+		If GetConfigVar("HTML5_SOUND_PRELOADING_ORDER")
+			exports.Push "window['CFG_HTML5_SOUND_PRELOADING_ORDER']=CFG_HTML5_SOUND_PRELOADING_ORDER;"
 		End If
 		
 		Return exports.Join( "~n" )
