@@ -113,6 +113,8 @@ Class Html5Builder Extends Builder
 		exports.Push "window['BBMonkeyGame']=BBMonkeyGame;"
 		exports.Push "BBMonkeyGame['Main']=BBMonkeyGame.Main;"
 		
+		exports.Push "window['CFG_HTML5_WEBAUDIO_ENABLED']=CFG_HTML5_WEBAUDIO_ENABLED;"
+		
 		If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"	
 			exports.Push "window['CFG_HTML5_PRELOADER_ENABLED']=CFG_HTML5_PRELOADER_ENABLED;"
 		End If			
@@ -203,14 +205,23 @@ Class Html5Builder Extends Builder
 			
 			SaveString main, "main.uncompressed.js"
 			
+			Local closureFlags:=""
 			Local optimizationLevel:=GetConfigVar("HTML5_OPTIMIZATION_LEVEL")
 			
 			If Not optimizationLevel
 				optimizationLevel = "simple"
 			End If
+			
+			If optimizationLevel = "advanced"
+				Local externs:=LoadDir("closure/externs")
+				
+				For Local extrn:=EachIn externs
+					closureFlags += "--externs closure/externs/"+StripDir(extrn)
+				Next
+			End If
 		
 			Print "Optimize output..."
-			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --warning_level QUIET --js main.uncompressed.js --js_output_file main.js", False
+			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --warning_level QUIET " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
 		Else
 			Local main:String
 		
