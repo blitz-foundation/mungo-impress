@@ -553,8 +553,7 @@ Class ApiDoccer Implements ILinkResolver
 							mdoc=False
 						Else
 							mdoc=True
-							If Not mdecl 
-								If opt<>"module" Return
+							If Not mdecl And opt="module"
 								parser.Bump()
 								Local id:=parser.ParseIdent()
 								If id<>modpath
@@ -620,8 +619,8 @@ Class ApiDoccer Implements ILinkResolver
 					If pdecl
 						Local ident:=pdecl.ident
 						Local p:=ExtractDir( srcpath )+"/"+ident.Replace( ".","/" )
-'						Print "Looking for module:"+p
-						If FileType( p+".monkey" )=FILETYPE_FILE Or FileType( p+"/"+p+".monkey" )=FILETYPE_FILE
+'						Print "Looking for module:"+p+"/"+StripAll(p)+".monkey
+						If FileType( p+".monkey" )=FILETYPE_FILE Or FileType( p+"/"+StripAll(p)+".monkey" )=FILETYPE_FILE
 							If StripDir( ExtractDir( srcpath ) )=StripAll( srcpath )
 								pdecl.ident=modpath+"."+ident
 							Else If modpath.Contains( "." )
