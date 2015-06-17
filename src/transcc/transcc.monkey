@@ -7,7 +7,7 @@
 Import trans
 Import builders
 
-Const VERSION:= "2.0.0-pre.6"
+Const VERSION:= "2.0.0-pre.9"
 
 Function Main()
 	Local tcc:=New TransCC
@@ -256,7 +256,10 @@ Class TransCC
 				If system
 					Local builder:=_builders.Get( GetConfigVar( "TARGET_BUILDER" ) )
 					If builder
-						_targets.Set name, New Target(ExtractDir(t), f, name, system, GetConfigVar( "TARGET_VERSION" ), builder)
+						Local host:=GetConfigVar( "TARGET_HOST" )
+						If Not host Or host=HostOS
+							_targets.Set name, New Target(ExtractDir(t), f, name, system, GetConfigVar( "TARGET_VERSION" ), builder)
+						EndIf
 					Endif
 				Endif
 			Endif

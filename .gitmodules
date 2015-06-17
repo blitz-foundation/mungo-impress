@@ -82,3 +82,6 @@
 [submodule "targets/glfw3"]
 	path = targets/glfw3
 	url = http://source.mungo.io/targets/glfw3.git
+[submodule "targets/glfw3_angle"]
+	path = targets/glfw3_angle
+	url = http://source.mungo.io/targets/glfw3-angle.git
