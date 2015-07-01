@@ -221,7 +221,7 @@ Class Html5Builder Extends Builder
 			End If
 		
 			Print "Optimize output..."
-			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --warning_level QUIET " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
+			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --warning_level QUIET --language_in=ECMASCRIPT5 " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
 		Else
 			Local main:String
 		
