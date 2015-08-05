@@ -216,12 +216,16 @@ Class Html5Builder Extends Builder
 				Local externs:=LoadDir("closure/externs")
 				
 				For Local extrn:=EachIn externs
-					closureFlags += "--externs closure/externs/"+StripDir(extrn)
+					closureFlags += " --externs closure/externs/"+StripDir(extrn)
 				Next
+			End If
+			
+			If (GetConfigVar("HTML5_OPTIMIZATION_FLAGS")) Then
+				closureFlags += " " + GetConfigVar("HTML5_OPTIMIZATION_FLAGS")
 			End If
 		
 			Print "Optimize output..."
-			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --warning_level QUIET --language_in=ECMASCRIPT5 " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
+			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --language_in=ECMASCRIPT5 --language_out=ECMASCRIPT5_STRICT --warning_level QUIET " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
 		Else
 			Local main:String
 		
