@@ -33,9 +33,10 @@ ANT_PATH="${HOME}/apache-ant-1.9.2"
 '
 'Must be set for FLASH target support.
 '
-FLEX_PATH="${HOME}/flex_sdk_4.9.1"
-FLEX_PATH="${HOME}/flex_sdk_4.9"
 FLEX_PATH="${HOME}/flex_sdk_4.6"
+FLEX_PATH="${HOME}/flex_sdk_4.9"
+FLEX_PATH="${HOME}/flex_sdk_4.9.1"
+
 '
 'for opening .swf files...monkey will use HTML_PLAYER if this is not set.
 'FLASH_PLAYER="...?..."

@@ -383,6 +383,7 @@ Class TransCC
 				path=path[..-1]
 			Wend
 			
+			' Check if directory exist and set it to be the valid one, we intentionnaly take the last good entry as the one in order to enable JungleIDE settings to be kept.
 			Select lhs
 			Case "MODPATH"
 				If Not opt_modpath
@@ -393,11 +394,11 @@ Class TransCC
 					opt_targspath = path
 				Endif
 			Case "ANDROID_PATH"
-				If Not ANDROID_PATH And FileType( path )=FILETYPE_DIR
+				If FileType(path) = FILETYPE_DIR
 					ANDROID_PATH=path
 				Endif
 			Case "ANDROID_NDK_PATH"
-				If Not ANDROID_NDK_PATH And FileType( path )=FILETYPE_DIR
+				If FileType(path) = FILETYPE_DIR
 					ANDROID_NDK_PATH=path
 				Endif
 			Case "JDK_PATH" 
@@ -405,25 +406,25 @@ Class TransCC
 					JDK_PATH=path
 				Endif
 			Case "ANT_PATH"
-				If Not ANT_PATH And FileType( path )=FILETYPE_DIR
+				If FileType(path) = FILETYPE_DIR
 					ANT_PATH=path
 				Endif
 			Case "FLEX_PATH"
-				If Not FLEX_PATH And FileType( path )=FILETYPE_DIR
+				If FileType(path) = FILETYPE_DIR
 					FLEX_PATH=path
 				Endif
 			Case "MINGW_PATH"
-				If Not MINGW_PATH And FileType( path )=FILETYPE_DIR
+				If FileType(path) = FILETYPE_DIR
 					MINGW_PATH=path
-				Endif
+				EndIf
 			Case "PSM_PATH"
-				If Not PSM_PATH And FileType( path )=FILETYPE_DIR
+				If FileType(path) = FILETYPE_DIR
 					PSM_PATH=path
-				Endif
+				EndIf
 			Case "MSBUILD_PATH"
-				If Not MSBUILD_PATH And FileType( path )=FILETYPE_FILE
+				If FileType(path) = FILETYPE_FILE
 					MSBUILD_PATH=path
-				Endif
+				EndIf
 			Case "HTML_PLAYER" 
 				HTML_PLAYER=rhs
 			Case "FLASH_PLAYER" 
