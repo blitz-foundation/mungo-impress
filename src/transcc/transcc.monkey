@@ -402,7 +402,7 @@ Class TransCC
 					ANDROID_NDK_PATH=path
 				Endif
 			Case "JDK_PATH" 
-				If Not JDK_PATH And FileType( path )=FILETYPE_DIR
+				If FileType( path )=FILETYPE_DIR
 					JDK_PATH=path
 				Endif
 			Case "ANT_PATH"
