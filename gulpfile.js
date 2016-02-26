@@ -77,7 +77,7 @@ var buildQtProject = function(projectName, projectDestName) {
           return;
         }
 
-        exec(make, {cwd: buildDir},
+        exec(make, {cwd: buildDir, env: {PATH: config.path.mingw + '/bin;' + path.dirname(process.env.ComSpec)}},
           function(err, stdout, stderr) {
             console.log(stdout);
             console.log(stderr);
