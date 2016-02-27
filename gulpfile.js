@@ -32,17 +32,21 @@ if (config.path.monkey === '') {
   config.path.monkey = '.';
 }
 
-var transcc = config.path.monkey + '/bin/transcc_' + host;
-var qmake = config.path.qt + '/bin/qmake';
+var transcc = 'transcc_' + host;
+var qmake = 'qmake';
 var make = 'make';
 var bin = './bin';
 var makedocs = bin + '/makedocs_' + host;
 
+var buildEnvironment = {
+  PATH: config.path.monkey + '/bin'
+};
+
 if (process.platform == 'win32') {
-  transcc += '.exe';
-  qmake += '.exe';
-  make = config.path.mingw + '/bin/mingw32-make.exe';
-  makedocs += '.exe';
+  make = 'mingw32-make';
+  buildEnvironment = {
+    PATH: config.path.mingw + '/bin;' + path.dirname(process.env.ComSpec) + ';' + config.path.qt + '/bin;' + config.path.monkey + '/bin'
+  };
 }
 
 var buildQtProject = function(projectName, projectDestName) {
@@ -65,7 +69,8 @@ var buildQtProject = function(projectName, projectDestName) {
       qmake,
       environment.qmake.args.concat(path.resolve(src, projectName + '.pro')),
       {
-        cwd: buildDir
+        cwd: buildDir,
+        env: buildEnvironment
       },
 
       function(err, stdout, stderr) {
@@ -77,7 +82,7 @@ var buildQtProject = function(projectName, projectDestName) {
           return;
         }
 
-        exec(make, {cwd: buildDir, env: {PATH: config.path.mingw + '/bin;' + path.dirname(process.env.ComSpec)}},
+        exec(make, {cwd: buildDir, env: buildEnvironment},
           function(err, stdout, stderr) {
             console.log(stdout);
             console.log(stderr);
@@ -147,6 +152,7 @@ var buildMonkeyProject = function(projectName, projectDestName, target, extraTra
     return exec(
       transcc,
       transArgs.concat(["-builddir=.build", path.resolve(src, projectName + '.monkey')]),
+      {env: buildEnvironment},
 
       function(err, stdout, stderr) {
         console.log(stdout);
@@ -250,7 +256,7 @@ gulp.task('docs', environment.options.build === 'clean' ? ['templates', 'transcc
           var basename = path.basename(fileStats.name, '.monkey');
 
           if (path.basename(root) == basename) {
-            exec(transcc,
+            exec(bin + '/' + transcc,
               ['-config=release', '-target=Html5_Game', '-builddir='+basename+'.build', path.resolve(root, fileStats.name)],
               function(err, stdout, stderr) {
                 console.log(stdout);
