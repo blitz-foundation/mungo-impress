@@ -1,4 +1,3 @@
-/bin/*
 !/bin/transcc_java
 !/bin/transcc_java.bat
 !/bin/*.txt
