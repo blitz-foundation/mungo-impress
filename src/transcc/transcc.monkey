@@ -7,7 +7,10 @@
 Import trans
 Import builders
 
-Const VERSION:= "2.0.0-pre.14"
+Const VERSION:= "2.0.0-pre.16 (Gloomywood with Consoles)"
+
+#GLFW_USE_MINGW="0"	' VC pour release
+#OUTPUTDEBUG_PRINT_ENABLED=true
 
 Function Main()
 	Local tcc:=New TransCC
@@ -160,6 +163,9 @@ Class TransCC
 	Field FLEX_PATH:String
 	Field MINGW_PATH:String
 	Field MSBUILD_PATH:String
+	Field MSBUILD_PATH_2012:String
+	Field XONE_XDK_PATH:String
+	Field XONE_IP_ADDRESS:String
 	Field PSS_PATH:String
 	Field PSM_PATH:String
 	Field HTML_PLAYER:String
@@ -425,7 +431,15 @@ Class TransCC
 				If FileType(path) = FILETYPE_FILE
 					MSBUILD_PATH=path
 				EndIf
-			Case "HTML_PLAYER" 
+			Case "MSBUILD_PATH_2012"
+				If FileType(path) = FILETYPE_FILE
+					MSBUILD_PATH_2012=path
+				EndIf
+			Case "XONE_IP_ADDRESS"
+				XONE_IP_ADDRESS = rhs
+			Case "XONE_XDK_PATH"
+				XONE_XDK_PATH = rhs
+			Case "HTML_PLAYER"
 				HTML_PLAYER=rhs
 			Case "FLASH_PLAYER" 
 				FLASH_PLAYER=rhs

@@ -12,6 +12,8 @@ Import stdcpp
 Import winrt
 Import xna
 Import javatool
+Import xboxone
+Import ps4
 
 Class Builders
 	
@@ -58,7 +60,9 @@ Private
 		Builders.Set "stdcpp",New StdcppBuilder
 		Builders.Set "winrt",New WinrtBuilder
 		Builders.Set "xna",New XnaBuilder
-		Builders.Set "javatool",New JavaToolBuilder
+		Builders.Set "javatool", New JavaToolBuilder
+		Builders.Set "xboxone", New XBoxOneBuilder
+		Builders.Set "ps4", New PS4Builder
 	End
 
 End Class
