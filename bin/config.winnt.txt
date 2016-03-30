@@ -129,10 +129,21 @@ PSM_PATH="${PROGRAMFILES}\SCE\PSM"
 '
 'Must be set for XNA and GLFW target support.
 '
-MSBUILD_PATH="${PROGRAMFILES}\MSBuild\12.0\Bin\MSBuild.exe"
 MSBUILD_PATH="${WINDIR}\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 MSBUILD_PATH="${PROGRAMFILES}\MSBuild\12.0\Bin\MSBuild.exe"
+MSBUILD_PATH_2012="${WINDIR}\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
+
+'--------------------
+' XBox One SDK
+'
+XONE_XDK_PATH=C:\Program Files (x86)\Microsoft Durango XDK\bin
+XONE_IP_ADDRESS=192.168.0.154
+
 '--------------------
 '--->> BEGIN OF JUNGLE IDE GENERATED CONFIG
-MINGW_PATH= "C:\MinGW32\MinGW"
+MINGW_PATH= "C:\Users\erwan\Desktop\MinGW"
+JDK_PATH= "C:\Program Files (x86)\Java\jdk1.7.0_55"
+FLEX_PATH= "C:\Users\erwan\Desktop\flex_sdk_4.6"
+ANDROID_PATH= "C:\Users\erwan\Desktop"
+ANT_PATH= "C:\Users\erwan\Desktop\apache-ant-1.9.4"
 '--->> END OF JUNGLE IDE GENERATED CONFIG
