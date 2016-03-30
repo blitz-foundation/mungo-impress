@@ -63,27 +63,18 @@ Class PS4Builder Extends Builder
 				If Execute("windres ../resource.rc -O coff -o ../resource.res", False) ccobjs += "../resource.res"
 			End
 
-			'Local cmd:="make"
-			'If HostOS="winnt" And FileType( tcc.MINGW_PATH+"/bin/mingw32-make.exe" ) cmd="mingw32-make"
-			
-			'Execute cmd+" CCOPTS=~q"+ccopts+"~q CCOBJS=~q"+ccobjs+"~q OUT=~q"+casedConfig+"/MonkeyGame~q"
 			Print "*********************************************************************************"
 			Print " Building generated c++ :"
 			Local cmd:= "~q" + tcc.MSBUILD_PATH_2012 + "~q /p:Configuration=" + casedConfig + " /p:Platform=ORBIS " + buildDataPath + "/ps4/msvc/MonkeyGame.sln"
 			Print cmd
 			Execute cmd
 			
-			If tcc.opt_run
-
-				ChangeDir casedConfig
-
-				If HostOS="winnt"
-					Execute "MonkeyGame"
-				Else
-					Execute "./MonkeyGame"
-				Endif
-			Endif
-		Endif
+			Print "*********************************************************************************"
+			Print " Running on devkit"
+			cmd = "orbis-run /workingDirectory:" + buildDataPath + "/ps4/ /elf " + buildDataPath + "/ps4/msvc/ORBIS_Release/MonkeyGame.elf"
+			Print cmd
+			Execute cmd
+		EndIf
 			
 	End
 	
