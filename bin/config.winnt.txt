@@ -137,7 +137,7 @@ MSBUILD_PATH_2012="${WINDIR}\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 ' XBox One SDK
 '
 XONE_XDK_PATH=C:\Program Files (x86)\Microsoft Durango XDK\bin
-XONE_IP_ADDRESS=192.168.0.154
+XONE_IP_ADDRESS=192.168.0.85
 
 '--------------------
 '--->> BEGIN OF JUNGLE IDE GENERATED CONFIG

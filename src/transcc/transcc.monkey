@@ -7,7 +7,7 @@
 Import trans
 Import builders
 
-Const VERSION:= "2.0.0-pre.16 (Gloomywood with Consoles)"
+Const VERSION:= "2.0.0-pre.17 (Gloomywood with Consoles)"
 
 #GLFW_USE_MINGW="0"	' VC pour release
 #OUTPUTDEBUG_PRINT_ENABLED=true

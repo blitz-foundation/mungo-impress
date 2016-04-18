@@ -170,7 +170,26 @@ Class Builder
 		If FileType( targetPath ) = FILETYPE_NONE
 			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath			
 			If FileType( buildPath )<>FILETYPE_DIR Die "Failed to create build dir: "+buildPath
-			If Not CopyDir(tcc.target.abspath + "/template", targetPath, True, False) Die "Failed to copy target dir"
+			
+			' Copying template folder
+			If Not CopyDir(tcc.target.abspath + "/template", targetPath, True, False)
+				Die "Failed to copy target dir"
+			End
+			
+			' Adding project specific files that needs to be added to template folder
+			Local projectSpecificTargetFiles_Path:= StripExt(tcc.opt_srcpath) + ".data" + "/target_" + tcc.target.system + "/template"
+		
+			If FileType(projectSpecificTargetFiles_Path) <> FILETYPE_NONE
+				Print "Copying project specific files to template folder, from path:"
+				Print projectSpecificTargetFiles_Path
+				Print "To path: " + targetPath
+				
+				If Not CopyDir(projectSpecificTargetFiles_Path, targetPath, True, False)
+					Die "Failed to copy target dir"
+				End
+			Else
+				Print "No project specific template folder: " + projectSpecificTargetFiles_Path
+			End
 		Endif
 		
 		If FileType( targetPath )<>FILETYPE_DIR Die "Failed to create target dir: "+targetPath
@@ -226,7 +245,7 @@ Class Builder
 	End
 	
 	Method CreateDataDir:Void( dir:String )
-	
+		Print "Creating data dir in " + dir
 		dir=RealPath( dir )
 	
 		If Not syncData DeleteDir dir,True
@@ -259,14 +278,19 @@ Class Builder
 					
 					Select FileType( p )
 					Case FILETYPE_FILE
-						If MatchPath( r,DATA_FILES )
+						If MatchPath(r, DATA_FILES)
+							'Print "Copying " + p + " to " + t
 							CCopyFile p,t
 							udata.Insert t
 							dataFiles.Set p,r
 						Endif
 					Case FILETYPE_DIR
-						CreateDir t
-						srcs.Push p
+						Local res:= IsTargetDir(f, t)
+						' If Not a target dir or a target dir corresponding to the current target
+						If res = 1 Or res = 0
+							CreateDir t
+							srcs.Push p
+						End
 					End
 				Next
 			
@@ -319,6 +343,18 @@ Class Builder
 			Wend
 		End
 		
+	End
+	
+	Method IsTargetDir:int(dirName:String, path:String)
+		Local targetDirName:= "target_" + tcc.target.system
+		If dirName = targetDirName
+			Return 1
+		ElseIf dirName.StartsWith("target_")
+			Return 2
+		ElseIf path.EndsWith(targetDirName + "/template")
+			Return 3
+		End
+		Return 0
 	End
 	
 End
