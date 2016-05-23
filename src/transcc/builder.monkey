@@ -238,7 +238,8 @@ Class Builder
 	End
 	
 	Method CCopyFile:Void( src:String,dst:String )
-		If FileTime( src )>FileTime( dst ) Or FileSize( src )<>FileSize( dst )
+		If FileTime(src) > FileTime(dst) Or FileSize(src) <> FileSize(dst)
+			RemoveReadOnly dst ' some files might be locked down (read only) by source control
 			DeleteFile dst
 			CopyFile src,dst
 		Endif
@@ -342,7 +343,6 @@ Class Builder
 				
 			Wend
 		End
-		
 	End
 	
 	Method IsTargetDir:int(dirName:String, path:String)
