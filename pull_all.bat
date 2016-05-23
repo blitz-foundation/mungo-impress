@@ -20,7 +20,7 @@ cd %GLOOMYWOOD_DEV%/Dependencies/mungo/targets/flash
 git pull
 
 echo. Updating glfw:
-cd targets/glfw
+cd %GLOOMYWOOD_DEV%/Dependencies/mungo/targets/glfw
 git pull
 
 echo. Updating glfw_steam:
