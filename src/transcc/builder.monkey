@@ -237,12 +237,16 @@ Class Builder
 		Return tcc.Execute( cmd,failHard )
 	End
 	
-	Method CCopyFile:Void( src:String,dst:String )
-		If FileTime(src) > FileTime(dst) Or FileSize(src) <> FileSize(dst)
-			RemoveReadOnly dst ' some files might be locked down (read only) by source control
-			DeleteFile dst
-			CopyFile src,dst
-		Endif
+	Method CCopyFile:Void(src:String, dst:String)
+		If FileType(dst) <> FILETYPE_NONE
+			If FileTime(src) > FileTime(dst) Or FileSize(src) <> FileSize(dst)
+				RemoveReadOnly dst ' some files might be locked down (read only) by source control
+				DeleteFile dst
+				CopyFile src,dst
+			EndIf
+		Else
+			CopyFile src, dst
+		EndIf
 	End
 	
 	Method CreateDataDir:Void( dir:String )
