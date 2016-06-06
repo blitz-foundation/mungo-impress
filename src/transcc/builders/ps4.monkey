@@ -161,14 +161,14 @@ Class PS4Builder Extends Builder
 				Local fIn:= dataPath + "\" + psslName
 				If FileType(fIn) <> FILETYPE_NONE
 					If f.EndsWith("vert")
-						cmdSz = "orbis-wave-psslc -O3 -profile sce_vs_vs_orbis -o " + fOut + " " + fIn
+						cmdSz = "orbis-wave-psslc -O3 -profile sce_vs_vs_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
 	
 						Print "Compiling pssl vertex shader : " + psslName + " file: " + fIn + " to: " + fOut
 						'Print cmdSz
 						
 						Execute cmdSz
 					Else 'f.EndsWith("frag")
-						cmdSz = "orbis-wave-psslc -O3 -profile sce_ps_orbis -o " + fOut + " " + fIn
+						cmdSz = "orbis-wave-psslc -O3 -profile sce_ps_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
 	
 						Print "Compiling pssl fragment shader : " + psslName + " file: " + fIn + " to: " + fOut
 					'	Print cmdSz
