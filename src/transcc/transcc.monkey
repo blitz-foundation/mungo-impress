@@ -164,6 +164,7 @@ Class TransCC
 	Field MINGW_PATH:String
 	Field MSBUILD_PATH:String
 	Field MSBUILD_PATH_2012:String
+	Field MSBUILD_PATH_2015:String
 	Field XONE_XDK_PATH:String
 	Field XONE_IP_ADDRESS:String
 	Field PSS_PATH:String
@@ -434,6 +435,10 @@ Class TransCC
 			Case "MSBUILD_PATH_2012"
 				If FileType(path) = FILETYPE_FILE
 					MSBUILD_PATH_2012=path
+				EndIf
+			Case "MSBUILD_PATH_2015"
+				If FileType(path) = FILETYPE_FILE
+					MSBUILD_PATH_2015 = path
 				EndIf
 			Case "XONE_IP_ADDRESS"
 				XONE_IP_ADDRESS = rhs

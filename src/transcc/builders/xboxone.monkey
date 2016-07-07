@@ -35,10 +35,13 @@ Class XBoxOneBuilder Extends Builder
 		If tcc.opt_build
 
 			'casedConfig todo before there was the casedConfig instead of Profile !
+			Print "*********************************************************************************"
+			Print " Creating pull_map.xml :"
+			CreatePullMappingFile buildDataPath + "/xboxone/Assets/monkey"
 			
 			Print "*********************************************************************************"
 			Print " Building generated c++ :"
-			Local cmd:= "~q" + tcc.MSBUILD_PATH_2012 + "~q /p:Configuration=" + casedConfig + " /p:Platform=Durango MonkeyGame.sln"
+			Local cmd:= "~q" + tcc.MSBUILD_PATH_2015 + "~q /p:Configuration=" + casedConfig + " /p:Platform=Durango MonkeyGame.sln"
 			Print cmd
 			Execute cmd
 			
@@ -51,7 +54,6 @@ Class XBoxOneBuilder Extends Builder
 			Execute(cmdSz, False)
 			
 			Print "Deploying in pull mode"
-			CreatePullMappingFile buildDataPath + "/xboxone/Assets/monkey"
 			cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbdeploy.exe ~q pull " + GetApplicationLooseFolderPath() + " /x:" + tcc.XONE_IP_ADDRESS + " /temp:deploy_temp /mf:pull_map.xml"
 			Print cmdSz
 			Execute cmdSz
