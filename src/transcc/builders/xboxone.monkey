@@ -125,33 +125,36 @@ Class XBoxOneBuilder Extends Builder
 				If FileType(fIn) <> FILETYPE_FILE
 						CompileShaders(fIn, boutputErrorFile)
 				Else
-					If f.EndsWith("verthlsl")
-						If boutputErrorFile
-							cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + " /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"						
-						Else
-							cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + " /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo" + fOut + " " + fIn '+ " /Fd " + fOut + ".pdb"
+					
+					If FileType(fOut) = FILETYPE_NONE Or FileTime(fIn) > FileTime(fOut)
+						If f.EndsWith("verthlsl")
+							If boutputErrorFile
+								cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + " /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"						
+							Else
+								cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + " /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo" + fOut + " " + fIn '+ " /Fd " + fOut + ".pdb"
+							EndIf
+	
+							Print "*********************************************************************************"
+							Print "Compiling vertex shader : " + cmdSz
+							Print "*********************************************************************************"
+							
+							Execute cmdSz
+	
+						ElseIf f.EndsWith("fraghlsl")
+							
+						' Debug flag : /Od /Zi /O0
+							If boutputErrorFile
+								cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
+							Else
+								cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0  /E main /Fo " + fOut + " " + fIn' + " /Fd " + fOut + ".pdb"
+							EndIf
+							
+							Print "*********************************************************************************"
+							Print "Compiling pixel shader : " + cmdSz
+							Print "*********************************************************************************"
+							
+							Execute cmdSz
 						EndIf
-
-						Print "*********************************************************************************"
-						Print "Compiling vertex shader : " + cmdSz
-						Print "*********************************************************************************"
-						
-						Execute cmdSz
-
-					ElseIf f.EndsWith("fraghlsl")
-						
-					' Debug flag : /Od /Zi /O0
-						If boutputErrorFile
-							cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
-						Else
-							cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0  /E main /Fo " + fOut + " " + fIn' + " /Fd " + fOut + ".pdb"
-						EndIf
-						
-						Print "*********************************************************************************"
-						Print "Compiling pixel shader : " + cmdSz
-						Print "*********************************************************************************"
-						
-						Execute cmdSz
 					EndIf
 				EndIf
 			End
@@ -376,40 +379,35 @@ Class XBoxOneBuilder Extends Builder
 	Method ExecCommand(cmdString:String)
 		'Local cmdSz:String = "xcopy " + buildDataPath + "/xboxone/Assets/monkey/*.fraghlslo " + rootDataPath + "/"
 		
-		cmdString = cmdString.Replace("/", "\")
+		'cmdString = cmdString.Replace("/", "\")
 		cmdString = cmdString + " /Y"
 		Print(cmdString)
 		Execute cmdString
 	End
-		
-	Method MakeTarget:Void()
 	
-		'Compile shader only if outdated...
+	Method MakeShaders:Void()
 		Local rootDataPath:= StripExt(tcc.opt_srcpath) + ".data"
-		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
+		Local rootDataPathConverted:= rootDataPath.Replace("/", "\")
 		
-		'Print "Deploying mojo shader sources"
-		'ExecCommand("xcopy " + buildDataPath + "/xboxone/Assets/monkey/*.fraghlslo " + rootDataPath + "/")
-		'ExecCommand("xcopy " + buildDataPath + "/xboxone/Assets/monkey/*.verthlslo " + rootDataPath + "/")
-		ExecCommand("xcopy " + buildDataPath + "/xboxone/Shaders/*.fraghlsl " + rootDataPath + "/")
-		ExecCommand("xcopy " + buildDataPath + "/xboxone/Shaders/*.verthlsl " + rootDataPath + "/")
-		ExecCommand("xcopy " + buildDataPath + "/xboxone/Shaders/glsl_typedefs.h " + rootDataPath + "/")
+		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
+		Local buildDataPathConverted:= buildDataPath.Replace("/", "\")
+		
+		'Copy only shaders that are newer than those in the build folder
+		ExecCommand("xcopy /d " + buildDataPathConverted + "\xboxone\Shaders\*.fraghlsl " + rootDataPathConverted + "\")
+		ExecCommand("xcopy /d " + buildDataPathConverted + "\xboxone\Shaders\*.verthlsl " + rootDataPathConverted + "\")
+		ExecCommand("xcopy /d " + buildDataPathConverted + "\xboxone\Shaders\glsl_typedefs.h " + rootDataPathConverted + "\")
 		
 		CompileShaders rootDataPath, False
-	
-		CreateDataDir "Assets/monkey"
-	
-	
-		Select HostOS
-		Case "winnt"
-			MakeVc2012
-		End
-		
-	
-
 	End
 	
-	
+	Method MakeTarget:Void()
+		CreateDataDir "Assets/monkey"
+
+		Select HostOS
+			Case "winnt"
+				MakeVc2012
+		End
+	End
 	
 End
 

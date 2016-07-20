@@ -94,25 +94,14 @@ Class PS4Builder Extends Builder
 		_trans=New CppTranslator
 	End
 	
+	Method MakeShaders:Void()
+		Local rootDataPath:= StripExt(tcc.opt_srcpath) + ".data"
+	
+		CompileShaders rootDataPath, False
+	End
+	
 	Method MakeTarget:Void()
 		'Compile shader only if outdated...
-		Local rootDataPath:= StripExt(tcc.opt_srcpath) + ".data"
-		'Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
-	
-		'Print "Deploying mojo shader sources"
-		'Local cmdSz:String = "xcopy " + buildDataPath + "/ps4/Assets/monkey/*ps4.frag " + rootDataPath + "/"
-		'cmdSz = cmdSz.Replace("/", "\")
-		'cmdSz = cmdSz + " /Y"
-		'Print(cmdSz)
-		'Execute cmdSz
-		
-		'cmdSz = "xcopy " + buildDataPath + "/ps4/Assets/monkey/*ps4.vert " + rootDataPath + "/"
-		'cmdSz = cmdSz.Replace("/", "\")
-		'cmdSz = cmdSz + " /Y"
-		'Print(cmdSz)
-		'Execute cmdSz
-		
-		CompileShaders rootDataPath, False
 		
 		CreateDataDir "data"
 		
@@ -159,53 +148,55 @@ Class PS4Builder Extends Builder
 				Local fOut:= dataPath + "\" + f + ".sb"
 				Local psslName:= f + ".pssl"
 				Local fIn:= dataPath + "\" + psslName
-				If FileType(fIn) <> FILETYPE_NONE
-					If f.EndsWith("vert")
-						cmdSz = "orbis-wave-psslc -O3 -profile sce_vs_vs_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
-	
-						Print "Compiling pssl vertex shader : " + psslName + " file: " + fIn + " to: " + fOut
-						'Print cmdSz
-						
-						Execute cmdSz
-					Else 'f.EndsWith("frag")
-						cmdSz = "orbis-wave-psslc -O3 -profile sce_ps_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
-	
-						Print "Compiling pssl fragment shader : " + psslName + " file: " + fIn + " to: " + fOut
-					'	Print cmdSz
+				If FileType(fOut) = FILETYPE_NONE Or FileTime(fIn) > FileTime(fOut)
+					If FileType(fIn) <> FILETYPE_NONE
+						If f.EndsWith("vert")
+							cmdSz = "orbis-wave-psslc -O3 -profile sce_vs_vs_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
+		
+							Print "Compiling pssl vertex shader : " + psslName + " file: " + fIn + " to: " + fOut
+							'Print cmdSz
 							
-						Execute cmdSz
-					EndIf
-				Else
-					fIn = dataPath + "\" + f
-					If f.EndsWith("vert")
-						cmdSz = pigletCompilerPath + " --cache -profile sce_vs_vs_orbis -D__PIGLET_ORBIS__ -o " + fOut + " " + fIn
-						'If boutputErrorFile
-						'cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
-						'Else
+							Execute cmdSz
+						Else 'f.EndsWith("frag")
+							cmdSz = "orbis-wave-psslc -O3 -profile sce_ps_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
+		
+							Print "Compiling pssl fragment shader : " + psslName + " file: " + fIn + " to: " + fOut
+						'	Print cmdSz
+								
+							Execute cmdSz
+						EndIf
+					Else
+						fIn = dataPath + "\" + f
+						If f.EndsWith("vert")
+							cmdSz = pigletCompilerPath + " --cache -profile sce_vs_vs_orbis -D__PIGLET_ORBIS__ -o " + fOut + " " + fIn
+							'If boutputErrorFile
+							'cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
+							'Else
+								
+							'cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo" + fOut + " " + fIn '+ " /Fd " + fOut + ".pdb"
+							'EndIf
+	
+							Print "Compiling gl vertex shader : " + f + " file: " + fIn + " to: " + fOut
+							'Print cmdSz
 							
-						'cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo" + fOut + " " + fIn '+ " /Fd " + fOut + ".pdb"
-						'EndIf
-
-						Print "Compiling gl vertex shader : " + f + " file: " + fIn + " to: " + fOut
-						'Print cmdSz
+							Execute cmdSz
+	
+						ElseIf f.EndsWith("frag")
+							cmdSz = pigletCompilerPath + " --cache -profile sce_ps_orbis -D__PIGLET_ORBIS__ -o " + fOut + " " + fIn
 						
-						Execute cmdSz
-
-					ElseIf f.EndsWith("frag")
-						cmdSz = pigletCompilerPath + " --cache -profile sce_ps_orbis -D__PIGLET_ORBIS__ -o " + fOut + " " + fIn
-					
-						' Debug flag : /Od /Zi /O0
-						'If boutputErrorFile
-						'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
-						'Else
-						'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0  /E main /Fo " + fOut + " " + fIn' + " /Fd " + fOut + ".pdb"
-						'EndIf
+							' Debug flag : /Od /Zi /O0
+							'If boutputErrorFile
+							'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
+							'Else
+							'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0  /E main /Fo " + fOut + " " + fIn' + " /Fd " + fOut + ".pdb"
+							'EndIf
+							
+							Print "Compiling gl pixel shader : " + f + " file: " + fIn + " to: " + fOut
+							'Print cmdSz
+							
+							Execute cmdSz
 						
-						Print "Compiling gl pixel shader : " + f + " file: " + fIn + " to: " + fOut
-						'Print cmdSz
-						
-						Execute cmdSz
-					
+						EndIf
 					EndIf
 				EndIf
 			End

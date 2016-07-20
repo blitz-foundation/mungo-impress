@@ -18,7 +18,10 @@ Class Builder
 	
 	Method Begin:Void() Abstract
 	
+	Method MakeShaders:Void()
+	End
 	Method MakeTarget:Void() Abstract
+	
 	
 	Method Make:Void()
 	
@@ -215,6 +218,8 @@ Class Builder
 		Local cd:=CurrentDir
 
 		ChangeDir targetPath
+		Self.MakeShaders
+		
 		Self.MakeTarget
 		ChangeDir cd
 	End
