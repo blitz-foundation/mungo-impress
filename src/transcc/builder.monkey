@@ -18,8 +18,6 @@ Class Builder
 	
 	Method Begin:Void() Abstract
 	
-	Method MakeShaders:Void()
-	End
 	Method MakeTarget:Void() Abstract
 	
 	
@@ -42,22 +40,15 @@ Class Builder
 
 		tcc.opt_modpath=".;"+ExtractDir( tcc.opt_srcpath )+";"+tcc.opt_modpath+";"+tcc.target.abspath+"/modules"
 		
-		If Not tcc.opt_check
-			tcc.opt_check=True
-			tcc.opt_update=True
-			tcc.opt_build=True
-		Endif
-		
 		ENV_HOST=HostOS
 		ENV_CONFIG=tcc.opt_config
-		ENV_SAFEMODE=tcc.opt_safe
+		ENV_SAFEMODE = tcc.opt_safe
 		ENV_MODPATH=tcc.opt_modpath
 		ENV_TARGET=tcc.target.system
 			
 		Self.Begin
 
 		'***** TRANSLATE *****
-		If Not tcc.opt_check Return
 
 		Print "Parsing..."
 		
@@ -140,43 +131,49 @@ Class Builder
 		
 		app=ParseApp( tcc.opt_srcpath )
 
-		Print "Semanting..."
-		If GetConfigVar("REFLECTION_FILTER")
-			Local r:=New Reflector
-			r.Semant app
-		Else
-			app.Semant
-		Endif
+		If tcc.opt_run = True Or tcc.opt_build = True
+			Print "Semanting..."
+			If GetConfigVar("REFLECTION_FILTER")
+				Local r:=New Reflector
+				r.Semant app
+			Else
+				app.Semant
+			EndIf
 		
-		Print "Translating..."
-		Local transbuf:=New StringStack
-		For Local file:String = Eachin app.fileImports
-			If ExtractExt( file ).ToLower()=ENV_LANG
-				transbuf.Push LoadString( file )
-				transbuf.Push "~n"
-			Endif
-		Next
-		transbuf.Push _trans.TransApp( app )
+			Print "Translating..."
+			Local transbuf:=New StringStack
+			For Local file:String = Eachin app.fileImports
+				If ExtractExt( file ).ToLower()=ENV_LANG
+					transbuf.Push LoadString( file )
+					transbuf.Push "~n"
+				Endif
+			Next
+			transbuf.Push _trans.TransApp(app)
+			
+			'***** UPDATE *****
+			'If Not tcc.opt_update Return
 		
-		'***** UPDATE *****
-		If Not tcc.opt_update Return
-		
-		Print "Building..."
+			Print "Building..."
 
-		transCode=transbuf.Join()
+			transCode = transbuf.Join()
+			
+		EndIf
+		
+	
 
 		If tcc.opt_clean
-			DeleteDir targetPath,True
+			Print "Deleting: " + targetPath
+			DeleteDir targetPath, True
 			If FileType( targetPath )<>FILETYPE_NONE Die "Failed to clean target dir"
-		Endif
+		EndIf
 
 		If FileType( targetPath ) = FILETYPE_NONE
 			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath			
 			If FileType( buildPath )<>FILETYPE_DIR Die "Failed to create build dir: "+buildPath
 			
-			' Copying template folder
+			Print "Copying template folder"
 			If Not CopyDir(tcc.target.abspath + "/template", targetPath, True, False)
-				Die "Failed to copy target dir"
+				Die "Failed to copy template folder"
 			End
 			
 			' Adding project specific files that needs to be added to template folder
@@ -217,9 +214,7 @@ Class Builder
 		
 		Local cd:=CurrentDir
 
-		ChangeDir targetPath
-		Self.MakeShaders
-		
+		ChangeDir targetPath		
 		Self.MakeTarget
 		ChangeDir cd
 	End
@@ -228,7 +223,6 @@ Class Builder
 	Field app:AppDecl
 	Field transCode:String
 	Field casedConfig:String
-	Field dataFiles:=New StringMap<String>	'maps real src path to virtual target path
 	Field syncData:Bool
 	Field DATA_FILES$
 	Field TEXT_FILES$
@@ -245,25 +239,142 @@ Class Builder
 	Method CCopyFile:Void(src:String, dst:String)
 		If FileType(dst) <> FILETYPE_NONE
 			If FileTime(src) > FileTime(dst) Or FileSize(src) <> FileSize(dst)
-				RemoveReadOnly dst ' some files might be locked down (read only) by source control
-				DeleteFile dst
-				CopyFile src,dst
+				'RemoveReadOnly dst 
+				If DeleteFile(dst) = False
+					RemoveReadOnly dst ' some files might be locked down (read only) by source control
+					DeleteFile(dst)
+				EndIf
+				CopyFile src, dst
 			EndIf
 		Else
 			CopyFile src, dst
 		EndIf
 	End
 	
-	Method CreateDataDir:Void( dir:String )
-		Print "Creating data dir in " + dir
-		dir=RealPath( dir )
+	Method CopyShaders:Void(dir:String)
+		'Only do that if Run
+		If tcc.opt_run = False
+			Return
+		EndIf
+		
+		Print "***********************"
+		Print "* Refreshing shaders"
+		
+		Local dataPath:= StripExt(tcc.opt_srcpath) + ".data"
+		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build/" + tcc.target.dir + "/" + dir
+		Print buildDataPath
+		If dataPath
+		
+			Local srcs:=New StringStack
+			srcs.Push dataPath
+			
+			While Not srcs.IsEmpty()
+			
+				Local src:=srcs.Pop()
+				
+				For Local f:= EachIn LoadDir(src)
+					Local path:= src + "/" + f
+				
+					Select FileType(path)
+						Case FILETYPE_FILE
+							If f.EndsWith(".vert") Or f.EndsWith(".frag")
+								'Print path
+								Local shortPath:= path[dataPath.Length() ..]
+								'	Print shortPath
+								Local targetPath:= buildDataPath + shortPath
+								'Print targetPath
+								
+								If FileType(targetPath) = FILETYPE_NONE Or FileTime(path) > FileTime(targetPath)
+									
+									Print "  > Refreshing: " + f
+									CCopyFile path, targetPath
+								EndIf
+							Endif
+						Case FILETYPE_DIR
+							srcs.Push path
+					End
+				Next
+			
+			Wend
+		
+		Endif
+	End
 	
-		If Not syncData DeleteDir dir,True
+	Method CreateDataFileMap:Void(dir:String, dataFileMap:StringMap<String>)
+	
+		Print "***********************"
+		Print "* Creating DataFileMap"
+		
+		dir = RealPath(dir)
+		Local dataPath:= StripExt(tcc.opt_srcpath) + ".data"
+		
+		If dataPath
+		
+			Local srcs:=New StringStack
+			srcs.Push dataPath
+			
+			While Not srcs.IsEmpty()
+			
+				Local src:=srcs.Pop()
+				
+				For Local f:=Eachin LoadDir( src )
+					If f.StartsWith( "." ) Continue
+
+					Local p:=src+"/"+f
+					Local r:=p[dataPath.Length+1..]
+					Local t:= dir + "/" + r
+					
+					Select FileType( p )
+						Case FILETYPE_FILE
+							If MatchPath(r, DATA_FILES)
+								dataFileMap.Set p, r
+							Endif
+						Case FILETYPE_DIR
+							Local res:= IsTargetDir(f, t)
+							' If Not a target dir or a target dir corresponding to the current target
+							If res = 1 Or res = 0
+								srcs.Push p
+							End
+					End
+				Next
+			
+			Wend
+		
+		Endif
+		
+		For Local p:= EachIn app.fileImports
+			Local r:=StripDir( p )
+			If MatchPath(r, DATA_FILES)
+				dataFileMap.Set p, r
+			Endif
+		Next
+	End
+	
+	Method CreateDataDir:Void(dir:String, force:Bool = False)
+	
+		dir = RealPath(dir)
+		
+		Local dirExists:= FileType(dir) = FILETYPE_DIR
+		
+		'Build data Dir only If Run or Build or if no data dir
+		If (tcc.opt_run Or tcc.opt_build) And force = False
+			If dirExists = True
+				Return
+			EndIf
+		EndIf
+		
+		If dirExists = False
+			Print "Creating data dir in " + dir
+		Else
+			Print "Updating data dir in " + dir
+		EndIf
+		
+		If Not syncData DeleteDir dir, True
 		CreateDir dir
 		
 		If FileType( dir )<>FILETYPE_DIR Die "Failed to create target project data dir: "+dir
 		
-		Local dataPath:=StripExt( tcc.opt_srcpath )+".data"
+		Local dataPath:= StripExt(tcc.opt_srcpath) + ".data"
 		If FileType( dataPath )<>FILETYPE_DIR dataPath=""
 		
 		'all used data...
@@ -292,7 +403,7 @@ Class Builder
 							'Print "Copying " + p + " to " + t
 							CCopyFile p,t
 							udata.Insert t
-							dataFiles.Set p,r
+						
 						Endif
 					Case FILETYPE_DIR
 						Local res:= IsTargetDir(f, t)
@@ -315,7 +426,7 @@ Class Builder
 			If MatchPath( r,DATA_FILES )
 				CCopyFile p,t
 				udata.Insert t
-				dataFiles.Set p,r
+				
 			Endif
 		Next
 		

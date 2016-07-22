@@ -15,10 +15,10 @@ Class XnaBuilder Extends Builder
 		Return config.Join( "~n" )
 	End
 	
-	Method Content:String()
+	Method Content:String(dataFileMap:StringMap<String>)
 		Local cont:=New StringStack
 
-		For Local kv:=Eachin dataFiles
+		For Local kv:=Eachin dataFileMap
 		
 			Local p:=kv.Key
 			Local r:=kv.Value
@@ -108,10 +108,13 @@ Class XnaBuilder Extends Builder
 	Method MakeTarget:Void()
 	
 		CreateDataDir "MonkeyGame/MonkeyGameContent/monkey"
+		
+		Local dataFileMap:StringMap<String> = New StringMap<String>
+		CreateDataFileMap "data", dataFileMap
 
 		'app data
 		Local contproj:=LoadString( "MonkeyGame/MonkeyGameContent/MonkeyGameContent.contentproj" )
-		contproj=ReplaceBlock( contproj,"CONTENT",Content(),"~n<!-- " )
+		contproj=ReplaceBlock( contproj,"CONTENT",Content(dataFileMap),"~n<!-- " )
 		SaveString contproj,"MonkeyGame/MonkeyGameContent/MonkeyGameContent.contentproj"
 		
 		'app code

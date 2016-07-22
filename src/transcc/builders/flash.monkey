@@ -15,9 +15,9 @@ Class FlashBuilder Extends Builder
 		Return config.Join( "~n" )
 	End
 	
-	Method Assets:String()
+	Method Assets:String(dataFileMap:StringMap<String>)
 		Local assets:=New StringStack
-		For Local kv:=Eachin dataFiles
+		For Local kv:=Eachin dataFileMap
 			
 			Local ext:=ExtractExt( kv.Value )
 			
@@ -56,12 +56,14 @@ Class FlashBuilder Extends Builder
 	Method MakeTarget:Void()
 
 		CreateDataDir "data"
+		Local dataFileMap:StringMap<String> = New StringMap<String>
+		CreateDataFileMap "data", dataFileMap
 		
 		'app code
 		Local main:=LoadString( "MonkeyGame.as" )
 
 		main=ReplaceBlock( main,"TRANSCODE",transCode )
-		main=ReplaceBlock( main,"ASSETS",Assets() )
+		main=ReplaceBlock( main,"ASSETS",Assets(dataFileMap) )
 		main=ReplaceBlock( main,"CONFIG",Config() )
 		
 		SaveString main,"MonkeyGame.as"

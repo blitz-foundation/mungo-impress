@@ -126,9 +126,9 @@ Class Html5Builder Extends Builder
 		Return exports.Join( "~n" )
 	End Method
 	
-	Method MetaData:String()
+	Method MetaData:String(dataFileMap:StringMap<String>)
 		Local meta:=New StringStack
-		For Local kv:=Eachin dataFiles
+		For Local kv:= EachIn dataFileMap
 			Local src:=kv.Key
 			Local ext:=ExtractExt( src ).ToLower()
 			Select ext
@@ -186,86 +186,107 @@ Class Html5Builder Extends Builder
 		_trans=New JsTranslator
 	End
 	
+	Method Make:Void()
+		If tcc.opt_clean
+			Print "Killing HTML5 related processes"
+			Execute("taskkill /F /IM mserver_winnt.exe", False)
+		EndIf
+		Super.Make
+	End
+	
+
+	
+	
+	
 	Method MakeTarget:Void()
 
 		CreateDataDir "data"
-
-		Local meta:="window['META_DATA']=~q"+MetaData()+"~q;~n"
 		
-		If ENV_CONFIG = "release" And GetConfigVar("HTML5_OPTIMIZE_OUTPUT") = "1" And ExtractExt(tcc.CLOSURE_COMPILER)[ .. - 1] = "jar"
-			Local main:= LoadString("main.uncompressed.js")
+		CopyShaders "data"
+		
+		Local dataFileMap:StringMap<String> = New StringMap<String>
+		CreateDataFileMap "data", dataFileMap
+	
+		If tcc.opt_update = False
+			Local meta:= "window['META_DATA']=~q" + MetaData(dataFileMap) + "~q;~n"
 			
-			If Not main
-				main = LoadString("main.js")
-			End If
-			
-			main = ReplaceBlock(main, "TRANSCODE", transCode + Exports())
-			main = ReplaceBlock(main, "METADATA", meta)
-			main = ReplaceBlock(main, "CONFIG", Config())
-			
-			SaveString main, "main.uncompressed.js"
-			
-			Local closureFlags:=""
-			Local optimizationLevel:=GetConfigVar("HTML5_OPTIMIZATION_LEVEL")
-			
-			If Not optimizationLevel
-				optimizationLevel = "simple"
-			End If
-			
-			If optimizationLevel = "advanced"
-				Local externs:=LoadDir("closure/externs")
+			If ENV_CONFIG = "release" And GetConfigVar("HTML5_OPTIMIZE_OUTPUT") = "1" And ExtractExt(tcc.CLOSURE_COMPILER)[ .. - 1] = "jar"
+				Local main:= LoadString("main.uncompressed.js")
 				
-				For Local extrn:=EachIn externs
-					closureFlags += " --externs closure/externs/"+StripDir(extrn)
-				Next
-			End If
+				If Not main
+					main = LoadString("main.js")
+				End If
+				
+				main = ReplaceBlock(main, "TRANSCODE", transCode + Exports())
+				main = ReplaceBlock(main, "METADATA", meta)
+				main = ReplaceBlock(main, "CONFIG", Config())
+				
+				SaveString main, "main.uncompressed.js"
+				
+				Local closureFlags:=""
+				Local optimizationLevel:=GetConfigVar("HTML5_OPTIMIZATION_LEVEL")
+				
+				If Not optimizationLevel
+					optimizationLevel = "simple"
+				End If
+				
+				If optimizationLevel = "advanced"
+					Local externs:=LoadDir("closure/externs")
+					
+					For Local extrn:= EachIn externs
+						closureFlags += " --externs closure/externs/"+StripDir(extrn)
+					Next
+				End If
+				
+				If (GetConfigVar("HTML5_OPTIMIZATION_FLAGS")) Then
+					closureFlags += " " + GetConfigVar("HTML5_OPTIMIZATION_FLAGS")
+				End If
 			
-			If (GetConfigVar("HTML5_OPTIMIZATION_FLAGS")) Then
-				closureFlags += " " + GetConfigVar("HTML5_OPTIMIZATION_FLAGS")
-			End If
-		
-			Print "Optimize output..."
-			Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --language_in=ECMASCRIPT5 --language_out=ECMASCRIPT5_STRICT --warning_level QUIET " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
-		Else
-			Local main:String
-		
-			If FileType("main.uncompressed.js") <> FILETYPE_NONE
-				main = LoadString("main.uncompressed.js")
-				DeleteFile("main.uncompressed.js")
+				Print "Optimize output..."
+				Execute "java -jar ~q" + tcc.CLOSURE_COMPILER + "~q --compilation_level " + optimizationLevel.ToUpper() + "_OPTIMIZATIONS --language_in=ECMASCRIPT5 --language_out=ECMASCRIPT5_STRICT --warning_level QUIET " + closureFlags + " --js main.uncompressed.js --js_output_file main.js", False
 			Else
-				main = LoadString("main.js")
+				Local main:String
+			
+				If FileType("main.uncompressed.js") <> FILETYPE_NONE
+					main = LoadString("main.uncompressed.js")
+					DeleteFile("main.uncompressed.js")
+				Else
+					main = LoadString("main.js")
+				EndIf
+			
+				main=ReplaceBlock( main,"TRANSCODE",transCode )
+				main=ReplaceBlock( main,"METADATA",meta )
+				main=ReplaceBlock( main,"CONFIG",Config() )
+				
+				SaveString main, "main.js"
 			EndIf
-		
-			main=ReplaceBlock( main,"TRANSCODE",transCode )
-			main=ReplaceBlock( main,"METADATA",meta )
-			main=ReplaceBlock( main,"CONFIG",Config() )
 			
-			SaveString main, "main.js"
+			Local template:String = LoadString("templates/default.html")
+			
+			If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"
+				Local preloader:String = LoadString("preloader.js")
+				
+				Local preloaderMeta:StringStack = New StringStack()
+				preloaderMeta.Push("MAINJS_FILESIZE:" + FileSize("main.js"))
+				
+				preloader = ReplaceBlock(preloader, "METADATA", "var PRELOADER_METADATA={" + preloaderMeta.Join(",") + "};")
+				
+				SaveString(preloader, "preloader.js")
+				
+				template = ReplaceBlock(template, "BOOTSTRAP", "<script src=~qpreloader.js~q></script>", "~n<!--")
+			Else
+				template = ReplaceBlock(template, "BOOTSTRAP", "<script src=~qmain.js~q></script>", "~n<!--")
+			EndIf
+			template = ReplaceEnv(template)
+			SaveString(template, "MonkeyGame.html")
 		EndIf
 		
-		Local template:String = LoadString("templates/default.html")
-		
-		If GetConfigVar("HTML5_PRELOADER_ENABLED") = "1"
-			Local preloader:String = LoadString("preloader.js")
-			
-			Local preloaderMeta:StringStack = New StringStack()
-			preloaderMeta.Push("MAINJS_FILESIZE:" + FileSize("main.js"))
-			
-			preloader = ReplaceBlock(preloader, "METADATA", "var PRELOADER_METADATA={" + preloaderMeta.Join(",") + "};")
-			
-			SaveString(preloader, "preloader.js")
-			
-			template = ReplaceBlock(template, "BOOTSTRAP", "<script src=~qpreloader.js~q></script>", "~n<!--")
-		Else
-			template = ReplaceBlock(template, "BOOTSTRAP", "<script src=~qmain.js~q></script>", "~n<!--")
-		EndIf
-		
-		template=ReplaceEnv(template)
-		SaveString(template, "MonkeyGame.html")
+	
 		
 		If tcc.opt_run
 			Local p:=RealPath( "MonkeyGame.html" )
-			Local t:=tcc.HTML_PLAYER+" ~q"+p+"~q"
+			Local t:= tcc.HTML_PLAYER + " ~q" + p + "~q"
+			Print "Executing..."
 			Execute t,False
 		Endif
 	End

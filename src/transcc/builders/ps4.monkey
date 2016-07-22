@@ -18,13 +18,13 @@ Class PS4Builder Extends Builder
 	'***** Visual studio 2012 *****
 	Method MakeVc2012:Void()
 	
-		Local dst:="gcc_"+HostOS
+		'Local dst:= "gcc_" + HostOS
 		
-		CreateDir dst+"/"+casedConfig
-		CreateDir dst+"/"+casedConfig+"/internal"
-		CreateDir dst+"/"+casedConfig+"/external"
+		'CreateDir dst+"/"+casedConfig
+		'CreateDir dst+"/"+casedConfig+"/internal"
+		'CreateDir dst+"/"+casedConfig+"/external"
 		
-		CreateDataDir dst+"/"+casedConfig+"/data"
+		'CreateDataDir dst+"/"+casedConfig+"/data"
 		
 		Local main:=LoadString( "main.cpp" )
 		
@@ -42,36 +42,39 @@ Class PS4Builder Extends Builder
 			End
 		End
 		
-		If tcc.opt_build
+		'	If tcc.opt_build
 
-			ChangeDir dst
-			CreateDir "build"
-			CreateDir "build/"+casedConfig
-			Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
+		'ChangeDir dst
+		'CreateDir "build"
+		'CreateDir "build/"+casedConfig
+		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
 			
-			Local ccopts:=""
-			Select ENV_CONFIG
-				Case "debug"
-					ccopts+=" -O0"
-				Case "release"
-					ccopts+=" -O3 -DNDEBUG"
-			End
+		Local ccopts:=""
+		Select ENV_CONFIG
+			Case "debug"
+				ccopts+=" -O0"
+			Case "release"
+				ccopts+=" -O3 -DNDEBUG"
+		End
 			
-			Local ccobjs:=""
+		Local ccobjs:=""
 			
-			If HostOS="winnt" And icon Then
-				If Execute("windres ../resource.rc -O coff -o ../resource.res", False) ccobjs += "../resource.res"
-			End
-
+		If HostOS="winnt" And icon Then
+			If Execute("windres ../resource.rc -O coff -o ../resource.res", False) ccobjs += "../resource.res"
+		End
+		
+		If tcc.opt_safe = False
 			Print "*********************************************************************************"
 			Print " Building generated c++ :"
 			Local cmd:= "~q" + tcc.MSBUILD_PATH_2012 + "~q /p:Configuration=" + casedConfig + " /p:Platform=ORBIS " + buildDataPath + "/ps4/msvc/MonkeyGame.sln"
 			Print cmd
 			Execute cmd
+		EndIf
 			
+		If tcc.opt_run = True
 			Print "*********************************************************************************"
 			Print " Running on devkit"
-			cmd = "orbis-run /workingDirectory:" + buildDataPath + "/ps4/ /elf " + buildDataPath + "/ps4/msvc/ORBIS_Release/MonkeyGame.elf"
+			Local cmd := "orbis-run /workingDirectory:" + buildDataPath + "/ps4/ /elf " + buildDataPath + "/ps4/msvc/ORBIS_Release/MonkeyGame.elf"
 			Print cmd
 			Execute cmd
 		EndIf
@@ -94,23 +97,41 @@ Class PS4Builder Extends Builder
 		_trans=New CppTranslator
 	End
 	
-	Method MakeShaders:Void()
+	Method MakeTarget:Void()
 		Local rootDataPath:= StripExt(tcc.opt_srcpath) + ".data"
 	
-		CompileShaders rootDataPath, False
-	End
-	
-	Method MakeTarget:Void()
-		'Compile shader only if outdated...
+		Print "**************************"
+		Print "* Compiling shaders"
+		Local compiledFilesList:StringList = New StringList
+		CompileShaders rootDataPath, False, compiledFilesList
 		
 		CreateDataDir "data"
 		
-		Select HostOS
-		Case "winnt"
-			MakeVc2012
-		End
+		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
+		If tcc.opt_run = True
+			Print "********************************************"
+			Print "* Copying individualy compiled shaders"
+			For Local compiledFilePath $ = EachIn compiledFilesList
+			
+				Local shortPathStartIndex:= rootDataPath.Length()
+				Local shortPath:= compiledFilePath[shortPathStartIndex..]
+				
+				Local targetCompiledFilePath:= buildDataPath + "/ps4/data" + shortPath
+				Print "  > Copying: " + compiledFilePath + " to " + targetCompiledFilePath
+				CCopyFile(compiledFilePath, targetCompiledFilePath)
+			Next
+		EndIf
+		
+		
+		If tcc.opt_run = True Or tcc.opt_build = True
+			Select HostOS
+				Case "winnt"
+					MakeVc2012
+			End
+		EndIf
 	End
 	
+	' Removes the pssl and keeps the .vert or .frag
 	Method Filter:String(filePath:String)
 		If filePath.EndsWith("vert") Or filePath.EndsWith("frag")
 			Return filePath
@@ -121,17 +142,20 @@ Class PS4Builder Extends Builder
 		Return ""
 	End
 	
-	Method CompileShaders:String(dataPath:String, boutputErrorFile:Bool)
+	Method CompileShaders:String(dataPath:String, boutputErrorFile:Bool, compiledFilesList:StringList)
 		
 		Local cmdSz:String
 		
 		'Copy data from monkey project to target project
 		If dataPath
+		
+			' Here need to make a list of files before compiling 
+			' because compiler need to choose between 
 			Local dictionnary := New StringMap<Int>
 			For Local f:= EachIn LoadDir(dataPath)
 				Local path:= dataPath + "\" + f
 				If FileType(path) = FILETYPE_DIR
-					CompileShaders(path, boutputErrorFile)
+					CompileShaders(path, boutputErrorFile, compiledFilesList)
 				Else
 					'Print "treating: " + f
 					Local newName := Filter(f)
@@ -144,61 +168,48 @@ Class PS4Builder Extends Builder
 			
 			Local pigletCompilerPath:= "piglet\tools\esslc\orbis-esslc.exe"
 			For Local f:= EachIn dictionnary.Keys()
-				'Print f
 				Local fOut:= dataPath + "\" + f + ".sb"
 				Local psslName:= f + ".pssl"
+				
+				'Trying first pssl
 				Local fIn:= dataPath + "\" + psslName
-				If FileType(fOut) = FILETYPE_NONE Or FileTime(fIn) > FileTime(fOut)
-					If FileType(fIn) <> FILETYPE_NONE
+			
+				If FileType(fIn) <> FILETYPE_NONE ' ie: if no pssl shader
+					If FileTime(fIn) > FileTime(fOut)
 						If f.EndsWith("vert")
 							cmdSz = "orbis-wave-psslc -O3 -profile sce_vs_vs_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
-		
-							Print "Compiling pssl vertex shader : " + psslName + " file: " + fIn + " to: " + fOut
-							'Print cmdSz
+							Print "  > Compiling pssl vertex shader : " + psslName + " file: " + fIn + " to: " + fOut
 							
 							Execute cmdSz
+							compiledFilesList.AddLast(fOut)
 						Else 'f.EndsWith("frag")
 							cmdSz = "orbis-wave-psslc -O3 -profile sce_ps_orbis -o " + fOut + " " + fIn + " -cachedir " + dataPath + " -sdb " + f + ".sdb"
-		
-							Print "Compiling pssl fragment shader : " + psslName + " file: " + fIn + " to: " + fOut
-						'	Print cmdSz
+							Print "  > Compiling pssl fragment shader : " + psslName + " file: " + fIn + " to: " + fOut
 								
 							Execute cmdSz
+							compiledFilesList.AddLast(fOut)
 						EndIf
-					Else
-						fIn = dataPath + "\" + f
+					EndIf
+				Else ' Try glsl
+					fIn = dataPath + "\" + f
+					If FileTime(fIn) > FileTime(fOut)
 						If f.EndsWith("vert")
 							cmdSz = pigletCompilerPath + " --cache -profile sce_vs_vs_orbis -D__PIGLET_ORBIS__ -o " + fOut + " " + fIn
-							'If boutputErrorFile
-							'cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
-							'Else
-								
-							'cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo" + fOut + " " + fIn '+ " /Fd " + fOut + ".pdb"
-							'EndIf
-	
-							Print "Compiling gl vertex shader : " + f + " file: " + fIn + " to: " + fOut
-							'Print cmdSz
+							Print "  > Compiling gl vertex shader : " + f + " file: " + fIn + " to: " + fOut
 							
 							Execute cmdSz
+							compiledFilesList.AddLast(fOut)
 	
 						ElseIf f.EndsWith("frag")
 							cmdSz = pigletCompilerPath + " --cache -profile sce_ps_orbis -D__PIGLET_ORBIS__ -o " + fOut + " " + fIn
+							Print "  > Compiling gl pixel shader : " + f + " file: " + fIn + " to: " + fOut
 						
-							' Debug flag : /Od /Zi /O0
-							'If boutputErrorFile
-							'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0 /E main /Fo " + fOut + " /Fe " + fErr + " " + fIn '+ " /Fd " + fOut + ".pdb"
-							'Else
-							'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0  /E main /Fo " + fOut + " " + fIn' + " /Fd " + fOut + ".pdb"
-							'EndIf
-							
-							Print "Compiling gl pixel shader : " + f + " file: " + fIn + " to: " + fOut
-							'Print cmdSz
-							
 							Execute cmdSz
-						
+							compiledFilesList.AddLast(fOut)
 						EndIf
 					EndIf
 				EndIf
+			
 			End
 		EndIf
 	End

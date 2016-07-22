@@ -20,12 +20,12 @@ Class WinrtBuilder Extends Builder
 		Return config.Join( "~n" )
 	End
 	
-	Method Content:String( csharp:Bool )
+	Method Content:String(csharp:Bool, dataFileMap:StringMap<String>)
 		Local wp8:Bool = FileType("NativeGame.cpp") = FILETYPE_NONE
 		Local compiledShaders:StringSet = New StringSet()
 	
 		Local cont:=New StringStack
-		For Local kv:=Eachin dataFiles
+		For Local kv:=Eachin dataFileMap
 			Local p:=kv.Key
 			Local r:=kv.Value
 			Local t:=("Assets\monkey\"+r).Replace( "/","\" )
@@ -101,15 +101,18 @@ Class WinrtBuilder Extends Builder
 	Method MakeTarget:Void()
 
 		CreateDataDir "Assets/monkey"
+		
+		Local dataFileMap:StringMap<String> = New StringMap<String>
+		CreateDataFileMap "data", dataFileMap
 
 		'proj file
 		Local proj:=LoadString( "MonkeyGame.vcxproj" )
 		If proj
-			proj=ReplaceBlock( proj,"CONTENT",Content( False ),"~n    <!-- " )
+			proj = ReplaceBlock(proj, "CONTENT", Content(False, dataFileMap), "~n    <!-- ")
 			SaveString proj,"MonkeyGame.vcxproj"
 		Else
 			Local proj:=LoadString( "MonkeyGame.csproj" )
-			proj=ReplaceBlock( proj,"CONTENT",Content( True ),"~n    <!-- " )
+			proj=ReplaceBlock( proj,"CONTENT",Content( True, dataFileMap ),"~n    <!-- " )
 			SaveString proj,"MonkeyGame.csproj"
 		Endif
 		

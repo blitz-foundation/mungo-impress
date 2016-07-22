@@ -7,7 +7,7 @@
 Import trans
 Import builders
 
-Const VERSION:= "2.0.0-pre.17 (Gloomywood with Consoles)"
+Const VERSION:= "2.0.17 (Gloomywood with Consoles)"
 
 #GLFW_USE_MINGW="0"	' VC pour release
 #OUTPUTDEBUG_PRINT_ENABLED=true
@@ -298,24 +298,19 @@ Class TransCC
 			If j=-1
 				Select arg.ToLower()
 				Case "-safe"
-					opt_safe=True
-				Case "-clean"
-					opt_clean=True
+					opt_safe = True
 				Case "-check"
-					opt_check=True
+					opt_check = True
 				Case "-update"
-					opt_check=True
-					opt_update=True
+					opt_update = True
+				Case "-clean"
+					opt_clean = True
 				Case "-build"
-					opt_check=True
-					opt_update=True
-					opt_build=True
+					opt_build = True
 				Case "-run"
-					opt_check=True
-					opt_update=True
-					opt_build=True
-					opt_run=True
+					opt_run = True
 				Default
+					Print arg.ToLower()
 					Die "Unrecognized command line option: "+arg
 				End
 			Else If arg.StartsWith( "-" )

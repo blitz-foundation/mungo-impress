@@ -15,10 +15,10 @@ Class PsmBuilder Extends Builder
 		Return config.Join( "~n" )
 	End
 	
-	Method Content:String()
+	Method Content:String(dataFileMap:StringMap<String>)
 		Local cont:=New StringStack
 
-		For Local kv:=Eachin dataFiles
+		For Local kv:= EachIn dataFileMap
 		
 			Local p:=kv.Key
 			Local r:=kv.Value
@@ -89,8 +89,11 @@ Class PsmBuilder Extends Builder
 	
 		CreateDataDir "data"
 		
+		Local dataFileMap:StringMap<String> = New StringMap<String>
+		CreateDataFileMap "data", dataFileMap
+		
 		Local proj:=LoadString( "MonkeyGame.csproj" )
-		proj=ReplaceBlock( proj,"CONTENT",Content(),"~n<!-- " )
+		proj=ReplaceBlock( proj,"CONTENT",Content(dataFileMap),"~n<!-- " )
 		SaveString proj,"MonkeyGame.csproj"
 
 		Local main:=LoadString( "MonkeyGame.cs" )

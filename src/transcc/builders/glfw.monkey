@@ -18,32 +18,32 @@ Class GlfwBuilder Extends Builder
 	'***** GCC *****
 	Method MakeGcc:Void()
 	
-		Local dst:="gcc_"+HostOS
-		
-		CreateDir dst+"/"+casedConfig
-		CreateDir dst+"/"+casedConfig+"/internal"
-		CreateDir dst+"/"+casedConfig+"/external"
-		
-		CreateDataDir dst+"/"+casedConfig+"/data"
-		
-		Local main:=LoadString( "main.cpp" )
-		
-		main=ReplaceBlock( main,"TRANSCODE",transCode )
-		main=ReplaceBlock( main,"CONFIG",Config() )
-		
-		SaveString main,"main.cpp"
-		
-		Local icon:=GetConfigVar("GLFW_APP_ICON")
-		If icon
-			If HostOS="winnt"
-				Local resource:=LoadString( "resource.rc" )
-				resource=ReplaceBlock( resource,"RESOURCE","APP_ICON ICON ~q" + icon + "~q")
-				SaveString resource,"resource.rc"
+		If tcc.opt_build Or tcc.opt_run
+			Local dst:="gcc_"+HostOS
+			
+			CreateDir dst+"/"+casedConfig
+			CreateDir dst+"/"+casedConfig+"/internal"
+			CreateDir dst+"/"+casedConfig+"/external"
+			
+			CreateDataDir dst+"/"+casedConfig+"/data"
+			
+			Local main:=LoadString( "main.cpp" )
+			
+			main=ReplaceBlock( main,"TRANSCODE",transCode )
+			main=ReplaceBlock( main,"CONFIG",Config() )
+			
+			SaveString main,"main.cpp"
+			
+			Local icon:=GetConfigVar("GLFW_APP_ICON")
+			If icon
+				If HostOS="winnt"
+					Local resource:=LoadString( "resource.rc" )
+					resource=ReplaceBlock( resource,"RESOURCE","APP_ICON ICON ~q" + icon + "~q")
+					SaveString resource,"resource.rc"
+				End
 			End
-		End
-		
-		If tcc.opt_build
-
+			
+	
 			ChangeDir dst
 			CreateDir "build"
 			CreateDir "build/"+casedConfig
@@ -61,24 +61,22 @@ Class GlfwBuilder Extends Builder
 			If HostOS="winnt" And icon Then
 				If Execute("windres ../resource.rc -O coff -o ../resource.res", False) ccobjs += "../resource.res"
 			End
-
+	
 			Local cmd:="make"
 			If HostOS="winnt" And FileType( tcc.MINGW_PATH+"/bin/mingw32-make.exe" ) cmd="mingw32-make"
 			
-			Execute cmd+" CCOPTS=~q"+ccopts+"~q CCOBJS=~q"+ccobjs+"~q OUT=~q"+casedConfig+"/MonkeyGame~q"
-			
-			If tcc.opt_run
+			Execute cmd + " CCOPTS=~q" + ccopts + "~q CCOBJS=~q" + ccobjs + "~q OUT=~q" + casedConfig + "/MonkeyGame~q"
+		EndIf
+		If tcc.opt_run
 
-				ChangeDir casedConfig
+			ChangeDir casedConfig
 
-				If HostOS="winnt"
-					Execute "MonkeyGame"
-				Else
-					Execute "./MonkeyGame"
-				Endif
+			If HostOS="winnt"
+				Execute "MonkeyGame"
+			Else
+				Execute "./MonkeyGame"
 			Endif
-		Endif
-			
+		EndIf
 	End
 	
 	'***** Vc2010 *****
@@ -88,7 +86,7 @@ Class GlfwBuilder Extends Builder
 		CreateDir "vc2010/"+casedConfig+"/internal"
 		CreateDir "vc2010/"+casedConfig+"/external"
 		
-		CreateDataDir "vc2010/"+casedConfig+"/data"
+		CreateDataDir "vc2010/" + casedConfig + "/data"
 		
 		Local main:=LoadString( "main.cpp" )
 		
@@ -97,7 +95,7 @@ Class GlfwBuilder Extends Builder
 		
 		SaveString main,"main.cpp"
 		
-		If tcc.opt_build
+		If tcc.opt_build Or tcc.opt_run
 
 			ChangeDir "vc2010"
 
@@ -120,7 +118,9 @@ Class GlfwBuilder Extends Builder
 		CreateDir "msvc/"+casedConfig+"/internal"
 		CreateDir "msvc/"+casedConfig+"/external"
 		
-		CreateDataDir "msvc/"+casedConfig+"/data"
+		Local dataDir:= "msvc/" + casedConfig + "/data"
+		CreateDataDir dataDir
+		CopyShaders dataDir
 		
 		Local main:=LoadString( "main.cpp" )
 		
@@ -129,7 +129,7 @@ Class GlfwBuilder Extends Builder
 		
 		SaveString main,"main.cpp"
 		
-		If tcc.opt_build
+		If tcc.opt_build Or tcc.opt_run
 
 			ChangeDir "msvc"
 
@@ -149,15 +149,15 @@ Class GlfwBuilder Extends Builder
 	Method MakeXcode:Void()
 
 		CreateDataDir "xcode/data"
-
-		Local main:=LoadString( "main.cpp" )
+		
+		Local main:= LoadString("main.cpp")
 		
 		main=ReplaceBlock( main,"TRANSCODE",transCode )
 		main=ReplaceBlock( main,"CONFIG",Config() )
 		
 		SaveString main,"main.cpp"
 		
-		If tcc.opt_build
+		If tcc.opt_build Or tcc.opt_run
 		
 			ChangeDir "xcode"
 			

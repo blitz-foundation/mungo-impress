@@ -19,8 +19,8 @@ Class XBoxOneBuilder Extends Builder
 		Return ".\Durango\Layout\Image\Loose"
 	End
 	
-	'***** Vc2012 *****
-	Method MakeVc2012:Void()
+	'***** Vc2015 *****
+	Method MakeVc2015:Void()
 	
 		Local main:= LoadString("main.cpp")
 		
@@ -32,65 +32,56 @@ Class XBoxOneBuilder Extends Builder
 		Local cmdSz:String
 		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
 
-		If tcc.opt_build
-
-			'casedConfig todo before there was the casedConfig instead of Profile !
-			Print "*********************************************************************************"
-			Print " Creating pull_map.xml :"
-			CreatePullMappingFile buildDataPath + "/xboxone/Assets/monkey"
-			
-			Print "*********************************************************************************"
-			Print " Building generated c++ :"
-			Local cmd:= "~q" + tcc.MSBUILD_PATH_2015 + "~q /p:Configuration=" + casedConfig + " /p:Platform=Durango MonkeyGame.sln"
-			Print cmd
-			Execute cmd
-			
-			Print "*********************************************************************************"
-			Print " XBox One Deployment :"
+		'casedConfig todo before there was the casedConfig instead of Profile !
+		Print "*********************************************************************************"
+		Print " Creating pull_map.xml :"
+		CreatePullMappingFile buildDataPath + "/xboxone/Assets/monkey"
 		
-			Print "Stopping previous pull deployment"
-			cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbdeploy.exe ~q stop /x:" + tcc.XONE_IP_ADDRESS + " a20bc1dd-6161-4a2a-8312-37d7773b0034_1.0.0.0_x64__zjr0dfhgjwvde"
-			Print cmdSz
-			Execute(cmdSz, False)
+		Print "*********************************************************************************"
+		Print " Building generated c++ :"
+		Local cmd:= "~q" + tcc.MSBUILD_PATH_2015 + "~q /p:Configuration=" + casedConfig + " /p:Platform=Durango MonkeyGame.sln"
+		Print cmd
+		Execute cmd
+		
+		Print "*********************************************************************************"
+		Print " XBox One Deployment :"
+	
+		Print "Stopping previous pull deployment"
+		cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbdeploy.exe ~q stop /x:" + tcc.XONE_IP_ADDRESS + " a20bc1dd-6161-4a2a-8312-37d7773b0034_1.0.0.0_x64__zjr0dfhgjwvde"
+		Print cmdSz
+		Execute(cmdSz, False)
+		
+		Print "Deploying in pull mode"
+		cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbdeploy.exe ~q pull " + GetApplicationLooseFolderPath() + " /x:" + tcc.XONE_IP_ADDRESS + " /temp:deploy_temp /mf:pull_map.xml"
+		Print cmdSz
+		Execute cmdSz
+		
+		If tcc.opt_run = False
+			CreatePackageMappingFile(buildDataPath + "/xboxone/Assets/monkey")
 			
-			Print "Deploying in pull mode"
-			cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbdeploy.exe ~q pull " + GetApplicationLooseFolderPath() + " /x:" + tcc.XONE_IP_ADDRESS + " /temp:deploy_temp /mf:pull_map.xml"
-			Print cmdSz
+			Print "*********************************************************************************"
+			Print " XBox One Building package"
+			Print "*********************************************************************************"
+			cmdSz = "~q" + tcc.XONE_XDK_PATH + "\makepkg.exe~q" + " pack /f " + buildDataPath + "/xboxone/package_map.xml /d " +  buildDataPath+"/xboxone/Durango/Layout/Image/Loose" + " /pd "+ buildDataPath + "\xboxone"
+			Print "Execute : " + cmdSz
+			Execute cmdSz
+		EndIf
+		
+		If tcc.opt_run
+					
+			Print "*********************************************************************************"
+			Print " XBox One Run :"
+			
+			cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbapp.exe ~q launch /X:" + tcc.XONE_IP_ADDRESS + " a20bc1dd-6161-4a2a-8312-37d7773b0034_zjr0dfhgjwvde!App"
+			Print "Execute : " + cmdSz
+			Print "*********************************************************************************"
 			Execute cmdSz
 			
-			If tcc.opt_run = False
-				CreatePackageMappingFile(buildDataPath + "/xboxone/Assets/monkey")
-				
-				Print "*********************************************************************************"
-				Print " XBox One Building package"
-				Print "*********************************************************************************"
-				cmdSz = "~q" + tcc.XONE_XDK_PATH + "\makepkg.exe~q" + " pack /f " + buildDataPath + "/xboxone/package_map.xml /d " +  buildDataPath+"/xboxone/Durango/Layout/Image/Loose" + " /pd "+ buildDataPath + "\xboxone"
-				Print "Execute : " + cmdSz
-				Execute cmdSz
-			EndIf
-			If tcc.opt_run
-						
-				Print "*********************************************************************************"
-				Print " XBox One Run :"
-				
-				cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbapp.exe ~q launch /X:" + tcc.XONE_IP_ADDRESS + " a20bc1dd-6161-4a2a-8312-37d7773b0034_zjr0dfhgjwvde!App"
-				Print "Execute : " + cmdSz
-				Print "*********************************************************************************"
-				Execute cmdSz
-				
-			Endif
+		Endif
 		
-		EndIf
 	
-		'If tcc.opt_update And Not tcc.opt_build
-		'	Print "*********************************************************************************"
-		'	Print " XBox One Updating files :"
-		'	Print "*********************************************************************************"
-		'	cmdSz = "~q" + tcc.XONE_XDK_PATH + "\xbdeploy.exe ~q audition " + " /x:" + tcc.XONE_IP_ADDRESS + " a20bc1dd-6161-4a2a-8312-37d7773b0034_1.0.0.0_x64__zjr0dfhgjwvde"
-		'	Print "Execute : " + cmdSz
-		'	Execute cmdSz				
-		'EndIf
-		
+	
+	
 	
 	End
 
@@ -110,7 +101,7 @@ Class XBoxOneBuilder Extends Builder
 		_trans=New CppTranslator
 	End
 	
-	Method CompileShaders:Void(dataPath:String, boutputErrorFile:Bool)
+	Method CompileShaders:Void(dataPath:String, boutputErrorFile:Bool, compiledFilesList:StringList)
 		
 		Local cmdSz:String
 		
@@ -119,13 +110,13 @@ Class XBoxOneBuilder Extends Builder
 			For Local f:= EachIn LoadDir(dataPath)
 			
 				Local fIn:= dataPath + "\" + f
-				Local fOut:= dataPath + "\" + f + "o"
+				Local fileNameOut:= f + "o"
+				Local fOut:= dataPath + "\" + fileNameOut
 				Local fErr:= dataPath + "\" + f + "err"
 			
 				If FileType(fIn) <> FILETYPE_FILE
-						CompileShaders(fIn, boutputErrorFile)
-				Else
-					
+					CompileShaders(fIn, boutputErrorFile, compiledFilesList)
+				Else	
 					If FileType(fOut) = FILETYPE_NONE Or FileTime(fIn) > FileTime(fOut)
 						If f.EndsWith("verthlsl")
 							If boutputErrorFile
@@ -134,12 +125,12 @@ Class XBoxOneBuilder Extends Builder
 								cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + " /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode /O3 /T vs_5_0 /E main /Fo" + fOut + " " + fIn '+ " /Fd " + fOut + ".pdb"
 							EndIf
 	
-							Print "*********************************************************************************"
-							Print "Compiling vertex shader : " + cmdSz
-							Print "*********************************************************************************"
+							Print "  >>>"
+							Print "  > Compiling vertex shader: " + cmdSz
 							
 							Execute cmdSz
-	
+							
+							compiledFilesList.AddLast(fOut)
 						ElseIf f.EndsWith("fraghlsl")
 							
 						' Debug flag : /Od /Zi /O0
@@ -149,11 +140,11 @@ Class XBoxOneBuilder Extends Builder
 								cmdSz = "~q" + tcc.XONE_XDK_PATH + "\..\bin\pixsc\fxc.exe" + "~q" + "/Zi /D__XBOX_FULL_PRECOMPILE_PROMISE /Gis /sourcecode  /O3 /T ps_5_0  /E main /Fo " + fOut + " " + fIn' + " /Fd " + fOut + ".pdb"
 							EndIf
 							
-							Print "*********************************************************************************"
-							Print "Compiling pixel shader : " + cmdSz
-							Print "*********************************************************************************"
+							Print "  >>>"
+							Print "  > Compiling pixel shader: " + cmdSz
 							
 							Execute cmdSz
+							compiledFilesList.AddLast(fOut)
 						EndIf
 					EndIf
 				EndIf
@@ -385,28 +376,42 @@ Class XBoxOneBuilder Extends Builder
 		Execute cmdString
 	End
 	
-	Method MakeShaders:Void()
+	Method MakeTarget:Void()
 		Local rootDataPath:= StripExt(tcc.opt_srcpath) + ".data"
 		Local rootDataPathConverted:= rootDataPath.Replace("/", "\")
 		
 		Local buildDataPath:= StripExt(tcc.opt_srcpath) + ".build"
 		Local buildDataPathConverted:= buildDataPath.Replace("/", "\")
 		
-		'Copy only shaders that are newer than those in the build folder
-		ExecCommand("xcopy /d " + buildDataPathConverted + "\xboxone\Shaders\*.fraghlsl " + rootDataPathConverted + "\")
-		ExecCommand("xcopy /d " + buildDataPathConverted + "\xboxone\Shaders\*.verthlsl " + rootDataPathConverted + "\")
-		ExecCommand("xcopy /d " + buildDataPathConverted + "\xboxone\Shaders\glsl_typedefs.h " + rootDataPathConverted + "\")
+		Local compiledFilesList:StringList = New StringList
 		
-		CompileShaders rootDataPath, False
-	End
-	
-	Method MakeTarget:Void()
+		Print "**************************"
+		Print "* Compiling shaders"
+		
+		CompileShaders rootDataPath, False, compiledFilesList
+		
 		CreateDataDir "Assets/monkey"
-
-		Select HostOS
-			Case "winnt"
-				MakeVc2012
-		End
+		
+		If tcc.opt_run = True
+			Print "********************************************"
+			Print "* Copying individualy compiled shaders"
+			For Local compiledFilePath $ = EachIn compiledFilesList
+			
+				Local shortPathStartIndex:= rootDataPath.Length()
+				Local shortPath:= compiledFilePath[shortPathStartIndex..]				
+				
+				Local targetCompiledFilePath:= buildDataPath + "/xboxone/Assets/monkey" + shortPath
+				Print "  > Copying: " + compiledFilePath + " to " + targetCompiledFilePath
+				CCopyFile(compiledFilePath, targetCompiledFilePath)
+			Next
+		EndIf
+		
+		If tcc.opt_run = True Or tcc.opt_build = True
+			Select HostOS
+				Case "winnt"
+					MakeVc2015
+			End
+		EndIf
 	End
 	
 End
