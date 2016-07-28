@@ -167,7 +167,7 @@ Class Builder
 			If FileType( targetPath )<>FILETYPE_NONE Die "Failed to clean target dir"
 		EndIf
 
-		If FileType( targetPath ) = FILETYPE_NONE
+		If FileType(targetPath) = FILETYPE_NONE
 			If FileType( buildPath ) = FILETYPE_NONE CreateDir buildPath			
 			If FileType( buildPath )<>FILETYPE_DIR Die "Failed to create build dir: "+buildPath
 			
@@ -350,14 +350,14 @@ Class Builder
 		Next
 	End
 	
-	Method CreateDataDir:Void(dir:String, force:Bool = False)
+	Method CreateDataDir:Void(dir:String)
 	
 		dir = RealPath(dir)
 		
 		Local dirExists:= FileType(dir) = FILETYPE_DIR
 		
 		'Build data Dir only If Run or Build or if no data dir
-		If (tcc.opt_run Or tcc.opt_build) And force = False
+		If (tcc.opt_run)
 			If dirExists = True
 				Return
 			EndIf

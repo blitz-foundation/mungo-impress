@@ -17,17 +17,18 @@ Class GlfwBuilder Extends Builder
 	
 	'***** GCC *****
 	Method MakeGcc:Void()
-	
+		Local dst:= "gcc_" + HostOS
+		CreateDir dst + "/" + casedConfig
+		CreateDir dst+"/"+casedConfig+"/internal"
+		CreateDir dst + "/" + casedConfig + "/external"
+		
+		Local dataDir:= dst + "/" + casedConfig + "/data"
+		CreateDataDir dataDir
+		CopyShaders dataDir
+		
 		If tcc.opt_build Or tcc.opt_run
-			Local dst:="gcc_"+HostOS
 			
-			CreateDir dst+"/"+casedConfig
-			CreateDir dst+"/"+casedConfig+"/internal"
-			CreateDir dst+"/"+casedConfig+"/external"
-			
-			CreateDataDir dst+"/"+casedConfig+"/data"
-			
-			Local main:=LoadString( "main.cpp" )
+			Local main:= LoadString("main.cpp")
 			
 			main=ReplaceBlock( main,"TRANSCODE",transCode )
 			main=ReplaceBlock( main,"CONFIG",Config() )
@@ -86,16 +87,19 @@ Class GlfwBuilder Extends Builder
 		CreateDir "vc2010/"+casedConfig+"/internal"
 		CreateDir "vc2010/"+casedConfig+"/external"
 		
-		CreateDataDir "vc2010/" + casedConfig + "/data"
+		Local dataDir:= "vc2010/" + casedConfig + "/data"
+		CreateDataDir dataDir
+		CopyShaders dataDir
 		
 		Local main:=LoadString( "main.cpp" )
 		
-		main=ReplaceBlock( main,"TRANSCODE",transCode )
-		main=ReplaceBlock( main,"CONFIG",Config() )
-		
-		SaveString main,"main.cpp"
+	
 		
 		If tcc.opt_build Or tcc.opt_run
+			main = ReplaceBlock(main, "TRANSCODE", transCode)
+			main=ReplaceBlock( main,"CONFIG",Config() )
+		
+			SaveString main,"main.cpp"
 
 			ChangeDir "vc2010"
 
@@ -122,15 +126,14 @@ Class GlfwBuilder Extends Builder
 		CreateDataDir dataDir
 		CopyShaders dataDir
 		
-		Local main:=LoadString( "main.cpp" )
-		
-		main=ReplaceBlock( main,"TRANSCODE",transCode )
-		main=ReplaceBlock( main,"CONFIG",Config() )
-		
-		SaveString main,"main.cpp"
-		
 		If tcc.opt_build Or tcc.opt_run
-
+			Local main:= LoadString("main.cpp")
+		
+			main=ReplaceBlock( main,"TRANSCODE",transCode )
+			main=ReplaceBlock( main,"CONFIG",Config() )
+		
+			SaveString main, "main.cpp"
+			
 			ChangeDir "msvc"
 
 			Execute "~q"+tcc.MSBUILD_PATH+"~q /p:Configuration="+casedConfig'+" /p:Platform=Win32 MonkeyGame.sln"
@@ -149,16 +152,16 @@ Class GlfwBuilder Extends Builder
 	Method MakeXcode:Void()
 
 		CreateDataDir "xcode/data"
-		
-		Local main:= LoadString("main.cpp")
-		
-		main=ReplaceBlock( main,"TRANSCODE",transCode )
-		main=ReplaceBlock( main,"CONFIG",Config() )
-		
-		SaveString main,"main.cpp"
+		CopyShaders "xcode/data"
 		
 		If tcc.opt_build Or tcc.opt_run
+			Local main:= LoadString("main.cpp")
 		
+			main=ReplaceBlock( main,"TRANSCODE",transCode )
+			main=ReplaceBlock( main,"CONFIG",Config() )
+		
+			SaveString main, "main.cpp"
+			
 			ChangeDir "xcode"
 			
 '			Execute "set -o pipefail && xcodebuild -configuration "+casedConfig+" | egrep -A 5 ~q(error|warning):~q"
@@ -191,6 +194,7 @@ Class GlfwBuilder Extends Builder
 	End
 	
 	Method MakeTarget:Void()
+	
 		Select HostOS
 		Case "winnt"
 			If GetConfigVar( "GLFW_USE_MINGW" )="1" And tcc.MINGW_PATH
@@ -207,6 +211,7 @@ Class GlfwBuilder Extends Builder
 		Case "linux"
 			MakeGcc
 		End
+	
 	End
 	
 End
