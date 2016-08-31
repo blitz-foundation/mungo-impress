@@ -356,9 +356,9 @@ Class Builder
 		
 		Local dirExists:= FileType(dir) = FILETYPE_DIR
 		
-		'Build data Dir only If Run or Build or if no data dir
+		'Build data Dir only If Run or if no data dir
 		If (tcc.opt_run)
-			If dirExists = True
+			If (dirExists = True) And (tcc.FORCE_UPDATE_DATA_DIR <> "True")
 				Return
 			EndIf
 		EndIf

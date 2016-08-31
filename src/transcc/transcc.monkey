@@ -173,6 +173,8 @@ Class TransCC
 	Field FLASH_PLAYER:String
 	Field CLOSURE_COMPILER:String
 	
+	Field FORCE_UPDATE_DATA_DIR:String
+	
 	Field args:String[]
 	Field monkeydir:String
 	Field target:Target
@@ -445,6 +447,8 @@ Class TransCC
 				FLASH_PLAYER=rhs
 			Case "CLOSURE_COMPILER"
 				CLOSURE_COMPILER = rhs
+			Case "FORCE_UPDATE_DATA_DIR"
+				FORCE_UPDATE_DATA_DIR = rhs
 			Case "INCLUDE"
 				LoadConfig(path)
 			Default 

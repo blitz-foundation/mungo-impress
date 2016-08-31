@@ -1,5 +1,7 @@
 INCLUDE="config.develop.winnt.txt"
 
+FORCE_UPDATE_DATA_DIR=False
+
 '--------------------
 'Monkey modules path
 '
